@@ -8,18 +8,19 @@ interface FoodAttributes {
   foodType: string
   quantity: string
   freshnessDuration: string
+  freshnessExpiresAt?: Date
   pickupLocation: string
   latitude?: number
   longitude?: number
   imageUrl?: string
-  status: 'available' | 'claimed' | 'completed'
+  status: 'available' | 'claimed' | 'completed' | 'expired'
   claimedById?: number
   otp?: string
   createdAt?: Date
   updatedAt?: Date
 }
 
-interface FoodCreationAttributes extends Optional<FoodAttributes, 'id' | 'status' | 'claimedById' | 'otp' | 'latitude' | 'longitude' | 'imageUrl'> {}
+interface FoodCreationAttributes extends Optional<FoodAttributes, 'id' | 'status' | 'claimedById' | 'otp' | 'latitude' | 'longitude' | 'imageUrl' | 'freshnessExpiresAt'> {}
 
 class Food extends Model<FoodAttributes, FoodCreationAttributes> implements FoodAttributes {
   public id!: number
@@ -27,11 +28,12 @@ class Food extends Model<FoodAttributes, FoodCreationAttributes> implements Food
   public foodType!: string
   public quantity!: string
   public freshnessDuration!: string
+  public freshnessExpiresAt?: Date
   public pickupLocation!: string
   public latitude?: number
   public longitude?: number
   public imageUrl?: string
-  public status!: 'available' | 'claimed' | 'completed'
+  public status!: 'available' | 'claimed' | 'completed' | 'expired'
   public claimedById?: number
   public otp?: string
   public readonly createdAt!: Date
@@ -65,6 +67,10 @@ Food.init(
       type: DataTypes.STRING(50),
       allowNull: false
     },
+    freshnessExpiresAt: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
     pickupLocation: {
       type: DataTypes.TEXT,
       allowNull: false
@@ -82,7 +88,7 @@ Food.init(
       allowNull: true
     },
     status: {
-      type: DataTypes.ENUM('available', 'claimed', 'completed'),
+      type: DataTypes.ENUM('available', 'claimed', 'completed', 'expired'),
       defaultValue: 'available'
     },
     claimedById: {

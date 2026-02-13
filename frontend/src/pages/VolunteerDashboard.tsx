@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Package, Clock, MapPin, LogOut, CheckCircle, Navigation, Loader, Copy } from 'lucide-react'
+import { Package, Clock, MapPin, CheckCircle, Navigation, Loader, Copy, Bell } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '../store/authStore'
 import { useVolunteerNotificationStore } from '../store/volunteerNotificationStore'
 import api from '../utils/api'
 import { getSocket } from '../utils/socket'
 import VolunteerNotificationDropdown from '../components/VolunteerNotificationDropdown'
+import ProfileDropdown from '../components/ProfileDropdown'
 
 interface FoodPost {
   id: number
@@ -23,12 +23,15 @@ interface FoodPost {
 }
 
 const VolunteerDashboard = () => {
-  const navigate = useNavigate()
-  const { user, logout } = useAuthStore()
+  const { user } = useAuthStore()
   const { addNotification } = useVolunteerNotificationStore()
   const [availablePosts, setAvailablePosts] = useState<FoodPost[]>([])
   const [claimedPosts, setClaimedPosts] = useState<FoodPost[]>([])
   const [activeTab, setActiveTab] = useState<'available' | 'claimed'>('available')
+  const [showClaimModal, setShowClaimModal] = useState(false)
+  const [selectedPostToClaim, setSelectedPostToClaim] = useState<FoodPost | null>(null)
+  const [confirmationChecked, setConfirmationChecked] = useState(false)
+  const [claiming, setClaiming] = useState(false)
 
   useEffect(() => {
     fetchAvailablePosts()
@@ -119,8 +122,9 @@ const VolunteerDashboard = () => {
   }
 
   const handleClaim = async (postId: number) => {
+    setClaiming(true)
     try {
-      const { data } = await api.post(`/food/claim/${postId}`)
+      await api.post(`/food/claim/${postId}`)
       toast.success('Food claimed! Check "My Claims" tab for OTP.')
       
       // Remove from available and add to claimed
@@ -129,9 +133,22 @@ const VolunteerDashboard = () => {
       
       // Switch to claimed tab to show OTP
       setActiveTab('claimed')
+      
+      // Close modal and reset
+      setShowClaimModal(false)
+      setSelectedPostToClaim(null)
+      setConfirmationChecked(false)
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to claim food')
+    } finally {
+      setClaiming(false)
     }
+  }
+
+  const openClaimModal = (post: FoodPost) => {
+    setSelectedPostToClaim(post)
+    setConfirmationChecked(false)
+    setShowClaimModal(true)
   }
 
   const copyOTP = (otp: string) => {
@@ -141,11 +158,6 @@ const VolunteerDashboard = () => {
 
   const openInGoogleMaps = (lat: number, lng: number) => {
     window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank')
-  }
-
-  const handleLogout = () => {
-    logout()
-    navigate('/login')
   }
 
   const renderFoodCard = (post: FoodPost, isClaimed: boolean = false) => (
@@ -249,7 +261,7 @@ const VolunteerDashboard = () => {
 
       {!isClaimed && post.status === 'available' && (
         <button
-          onClick={() => handleClaim(post.id)}
+          onClick={() => openClaimModal(post)}
           className="btn-primary w-full flex items-center justify-center gap-2"
         >
           <CheckCircle className="w-4 h-4" />
@@ -277,12 +289,9 @@ const VolunteerDashboard = () => {
             <h1 className="text-2xl font-bold text-white">Volunteer Dashboard</h1>
             <p className="text-gray-400 text-sm">Welcome, {user?.name}</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <VolunteerNotificationDropdown />
-            <button onClick={handleLogout} className="btn-secondary flex items-center gap-2">
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
+            <ProfileDropdown />
           </div>
         </div>
       </header>
@@ -374,6 +383,85 @@ const VolunteerDashboard = () => {
           </>
         )}
       </main>
+
+      {/* Claim Confirmation Modal */}
+      {showClaimModal && selectedPostToClaim && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="card max-w-md w-full">
+            <h2 className="text-2xl font-bold text-white mb-4">Confirm Food Claim</h2>
+            
+            {/* Food Details */}
+            <div className="mb-6 p-4 bg-dark-800 rounded-xl">
+              <h3 className="text-lg font-semibold text-white mb-2">{selectedPostToClaim.foodType}</h3>
+              <div className="space-y-2 text-sm text-gray-400">
+                <div className="flex items-center gap-2">
+                  <Package className="w-4 h-4" />
+                  <span>{selectedPostToClaim.quantity}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  <span>Fresh for {selectedPostToClaim.freshnessDuration}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  <span className="flex-1">{selectedPostToClaim.pickupLocation}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Important Notice */}
+            <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+              <h4 className="text-yellow-500 font-semibold mb-2 flex items-center gap-2">
+                <Bell className="w-5 h-5" />
+                Important Notice
+              </h4>
+              <ul className="text-sm text-gray-300 space-y-2">
+                <li>• You commit to collecting this food within the freshness duration</li>
+                <li>• An OTP will be generated for pickup verification</li>
+                <li>• Please arrive at the pickup location on time</li>
+                <li>• Show the OTP to the donor to complete the collection</li>
+              </ul>
+            </div>
+
+            {/* Confirmation Checkbox */}
+            <div className="mb-6">
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={confirmationChecked}
+                  onChange={(e) => setConfirmationChecked(e.target.checked)}
+                  className="mt-1 w-5 h-5 rounded border-2 border-dark-700 bg-dark-800 checked:bg-primary-500 checked:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-dark-900 cursor-pointer"
+                />
+                <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                  I understand and commit to collecting this food. I will arrive at the pickup location within the specified time and show the OTP to the donor.
+                </span>
+              </label>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowClaimModal(false)
+                  setSelectedPostToClaim(null)
+                  setConfirmationChecked(false)
+                }}
+                className="btn-secondary flex-1"
+                disabled={claiming}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleClaim(selectedPostToClaim.id)}
+                disabled={!confirmationChecked || claiming}
+                className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {claiming ? 'Claiming...' : 'Confirm & Claim'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

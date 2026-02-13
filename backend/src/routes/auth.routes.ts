@@ -1,8 +1,10 @@
 import express from 'express'
 import jwt from 'jsonwebtoken'
+import { OAuth2Client } from 'google-auth-library'
 import User from '../models/User.model.js'
 
 const router = express.Router()
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 router.post('/register', async (req, res) => {
   try {
@@ -54,6 +56,57 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error)
     res.status(500).json({ message: 'Server error' })
+  }
+})
+
+// Google OAuth Login
+router.post('/google', async (req, res) => {
+  try {
+    const { credential, role } = req.body
+
+    // Verify Google token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID
+    })
+
+    const payload = ticket.getPayload()
+    if (!payload || !payload.email) {
+      return res.status(400).json({ message: 'Invalid Google token' })
+    }
+
+    // Check if user exists
+    let user = await User.findOne({ where: { email: payload.email } })
+
+    if (!user) {
+      // Create new user with Google info
+      user = await User.create({
+        name: payload.name || payload.email.split('@')[0],
+        email: payload.email,
+        password: Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8), // Random password for OAuth users
+        role: role || 'donor' // Use provided role or default to donor
+      })
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user.id, role: user.role },
+      process.env.JWT_SECRET || 'secret',
+      { expiresIn: '7d' }
+    )
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    })
+  } catch (error) {
+    console.error('Google auth error:', error)
+    res.status(500).json({ message: 'Google authentication failed' })
   }
 })
 

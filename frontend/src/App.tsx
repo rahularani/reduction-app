@@ -3,8 +3,10 @@ import { Toaster } from 'react-hot-toast'
 import WelcomePage from './pages/WelcomePage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import DonatePage from './pages/DonatePage'
 import DonorDashboard from './pages/DonorDashboard'
 import VolunteerDashboard from './pages/VolunteerDashboard'
+import AdminDashboard from './pages/AdminDashboard'
 import ProtectedRoute from './components/ProtectedRoute'
 import { useAuthStore } from './store/authStore'
 
@@ -16,13 +18,22 @@ function App() {
       <Toaster position="top-right" />
       <Routes>
         <Route path="/" element={<WelcomePage />} />
+        <Route path="/donate" element={<DonatePage />} />
         <Route 
           path="/login" 
-          element={user ? <Navigate to={user.role === 'donor' ? '/donor/dashboard' : '/volunteer/dashboard'} replace /> : <LoginPage />} 
+          element={user ? <Navigate to={
+            user.role === 'donor' ? '/donor/dashboard' : 
+            user.role === 'volunteer' ? '/volunteer/dashboard' : 
+            '/admin/dashboard'
+          } replace /> : <LoginPage />} 
         />
         <Route 
           path="/register" 
-          element={user ? <Navigate to={user.role === 'donor' ? '/donor/dashboard' : '/volunteer/dashboard'} replace /> : <RegisterPage />} 
+          element={user ? <Navigate to={
+            user.role === 'donor' ? '/donor/dashboard' : 
+            user.role === 'volunteer' ? '/volunteer/dashboard' : 
+            '/admin/dashboard'
+          } replace /> : <RegisterPage />} 
         />
         <Route 
           path="/donor/dashboard" 
@@ -37,6 +48,14 @@ function App() {
           element={
             <ProtectedRoute allowedRole="volunteer">
               <VolunteerDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/dashboard" 
+          element={
+            <ProtectedRoute allowedRole="admin">
+              <AdminDashboard />
             </ProtectedRoute>
           } 
         />

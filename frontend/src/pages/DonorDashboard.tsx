@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Plus, Package, Clock, MapPin, LogOut, Image as ImageIcon, Navigation, CheckCircle, Truck } from 'lucide-react'
+import { Plus, Package, Clock, MapPin, Image as ImageIcon, Navigation, CheckCircle, Truck } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '../store/authStore'
 import { useNotificationStore } from '../store/notificationStore'
 import api from '../utils/api'
 import { getSocket } from '../utils/socket'
 import NotificationDropdown from '../components/NotificationDropdown'
+import ProfileDropdown from '../components/ProfileDropdown'
 
 interface FoodPost {
   id: number
@@ -27,8 +27,7 @@ interface FoodPost {
 }
 
 const DonorDashboard = () => {
-  const navigate = useNavigate()
-  const { user, logout } = useAuthStore()
+  const { user } = useAuthStore()
   const { addNotification } = useNotificationStore()
   const [showModal, setShowModal] = useState(false)
   const [showOtpModal, setShowOtpModal] = useState(false)
@@ -171,7 +170,7 @@ const DonorDashboard = () => {
             })
             .finally(() => setLoadingLocation(false))
         },
-        (error) => {
+        () => {
           toast.error('Unable to get location')
           setLoadingLocation(false)
         }
@@ -238,7 +237,7 @@ const DonorDashboard = () => {
     setVerifyingOtp(true)
 
     try {
-      const { data } = await api.post(`/food/verify-otp/${selectedPost.id}`, {
+      await api.post(`/food/verify-otp/${selectedPost.id}`, {
         otp: otpInput
       })
       toast.success('Delivery completed successfully! 🎉')
@@ -257,11 +256,6 @@ const DonorDashboard = () => {
     window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank')
   }
 
-  const handleLogout = () => {
-    logout()
-    navigate('/login')
-  }
-
   return (
     <div className="min-h-screen bg-dark-950">
       <header className="bg-dark-900 border-b border-dark-800">
@@ -270,12 +264,9 @@ const DonorDashboard = () => {
             <h1 className="text-2xl font-bold text-white">Donor Dashboard</h1>
             <p className="text-gray-400 text-sm">Welcome back, {user?.name}</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <NotificationDropdown />
-            <button onClick={handleLogout} className="btn-secondary flex items-center gap-2">
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
+            <ProfileDropdown />
           </div>
         </div>
       </header>

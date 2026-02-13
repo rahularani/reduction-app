@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Leaf, Heart, Users, ArrowRight } from 'lucide-react'
+import { Leaf, Heart, Users, ArrowRight, HandHeart } from 'lucide-react'
 
 const WelcomePage = () => {
   const navigate = useNavigate()
@@ -49,8 +49,8 @@ const WelcomePage = () => {
           </div>
         </div>
 
-        {/* CTA Button */}
-        <div className="pt-8">
+        {/* CTA Buttons */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
             onClick={() => navigate('/login')}
             className="btn-primary group inline-flex items-center gap-2 text-lg"
@@ -58,7 +58,19 @@ const WelcomePage = () => {
             Get Started
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
+          
+          <button
+            onClick={() => navigate('/donate')}
+            className="btn-secondary group inline-flex items-center gap-2 text-lg"
+          >
+            <HandHeart className="w-5 h-5" />
+            Support Our Cause
+          </button>
         </div>
+
+        <p className="text-sm text-gray-500 mt-4">
+          Help us fight food waste and hunger. Every contribution makes a difference.
+        </p>
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-8 pt-12 max-w-2xl mx-auto">

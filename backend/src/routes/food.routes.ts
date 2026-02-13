@@ -4,6 +4,7 @@ import User from '../models/User.model.js'
 import { authenticate, authorize, AuthRequest } from '../middleware/auth.middleware.js'
 import { upload } from '../middleware/upload.middleware.js'
 import { getIO } from '../socket/socket.js'
+import { calculateExpirationDate } from '../utils/expirationChecker.js'
 
 const router = express.Router()
 
@@ -15,11 +16,15 @@ router.post('/create', authenticate, authorize('donor'), upload.single('image'),
 
     const imageUrl = req.file ? `/uploads/food-images/${req.file.filename}` : undefined
 
+    // Calculate expiration date
+    const freshnessExpiresAt = calculateExpirationDate(freshnessDuration)
+
     const food = await Food.create({
       donorId: parseInt(req.userId!),
       foodType,
       quantity,
       freshnessDuration,
+      freshnessExpiresAt,
       pickupLocation,
       latitude: latitude ? parseFloat(latitude) : undefined,
       longitude: longitude ? parseFloat(longitude) : undefined,
@@ -51,7 +56,10 @@ router.post('/create', authenticate, authorize('donor'), upload.single('image'),
 router.get('/my-posts', authenticate, authorize('donor'), async (req: AuthRequest, res) => {
   try {
     const posts = await Food.findAll({
-      where: { donorId: parseInt(req.userId!) },
+      where: { 
+        donorId: parseInt(req.userId!),
+        status: ['available', 'claimed', 'completed'] // Exclude expired
+      },
       include: [
         {
           model: User,

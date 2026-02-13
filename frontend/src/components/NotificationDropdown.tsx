@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Bell, Check, Trash2, Package, CheckCircle, X } from 'lucide-react'
+import { Bell, Check, Trash2, Package, CheckCircle } from 'lucide-react'
 import { useNotificationStore } from '../store/notificationStore'
 
 const NotificationDropdown = () => {
