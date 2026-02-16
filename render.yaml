@@ -8,8 +8,9 @@ services:
     env: node
     region: oregon
     plan: free
-    buildCommand: cd backend && npm install && npm run build
-    startCommand: cd backend && npm start
+    rootDir: backend
+    buildCommand: npm install --legacy-peer-deps && npm run build
+    startCommand: npm start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -23,7 +24,7 @@ services:
       - key: DB_PASSWORD
         sync: false
       - key: DB_NAME
-        value: food_waste_app
+        value: railway
       - key: DB_PORT
         value: 3306
       - key: JWT_SECRET
@@ -35,8 +36,8 @@ services:
       - key: GOOGLE_CLIENT_SECRET
         sync: false
 
-# Note: You'll need to create a MySQL database separately
-# Options:
-# 1. Render MySQL (paid)
-# 2. Railway MySQL (free $5 credit)
-# 3. PlanetScale (free tier)
+# Note: You'll need to manually set these environment variables:
+# - DB_HOST (from Railway)
+# - DB_USER (from Railway)
+# - DB_PASSWORD (from Railway)
+# - FRONTEND_URL (your Vercel URL after frontend deployment)
