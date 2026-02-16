@@ -2,11 +2,12 @@ import express from 'express'
 import User from '../models/User.model.js'
 import Food from '../models/Food.model.js'
 import { authenticate, authorize, AuthRequest } from '../middleware/auth.middleware.js'
+import { logger } from '../utils/logger.js'
 
 const router = express.Router()
 
 // Get all users
-router.get('/users', authenticate, authorize('admin'), async (req: AuthRequest, res) => {
+router.get('/users', authenticate, authorize('admin'), async (_req: AuthRequest, res) => {
   try {
     const users = await User.findAll({
       attributes: ['id', 'name', 'email', 'role', 'createdAt'],
@@ -14,13 +15,13 @@ router.get('/users', authenticate, authorize('admin'), async (req: AuthRequest, 
     })
     res.json(users)
   } catch (error) {
-    console.error('Fetch users error:', error)
+    logger.error('Fetch users error:', error)
     res.status(500).json({ message: 'Failed to fetch users' })
   }
 })
 
 // Get all food posts
-router.get('/food-posts', authenticate, authorize('admin'), async (req: AuthRequest, res) => {
+router.get('/food-posts', authenticate, authorize('admin'), async (_req: AuthRequest, res) => {
   try {
     const posts = await Food.findAll({
       include: [
@@ -39,13 +40,13 @@ router.get('/food-posts', authenticate, authorize('admin'), async (req: AuthRequ
     })
     res.json(posts)
   } catch (error) {
-    console.error('Fetch food posts error:', error)
+    logger.error('Fetch food posts error:', error)
     res.status(500).json({ message: 'Failed to fetch food posts' })
   }
 })
 
 // Get dashboard statistics
-router.get('/stats', authenticate, authorize('admin'), async (req: AuthRequest, res) => {
+router.get('/stats', authenticate, authorize('admin'), async (_req: AuthRequest, res) => {
   try {
     const totalUsers = await User.count()
     const totalDonors = await User.count({ where: { role: 'donor' } })
@@ -65,45 +66,48 @@ router.get('/stats', authenticate, authorize('admin'), async (req: AuthRequest, 
       completedFood
     })
   } catch (error) {
-    console.error('Fetch stats error:', error)
+    logger.error('Fetch stats error:', error)
     res.status(500).json({ message: 'Failed to fetch statistics' })
   }
 })
 
 // Delete user
-router.delete('/users/:id', authenticate, authorize('admin'), async (req: AuthRequest, res) => {
+router.delete('/users/:id', authenticate, authorize('admin'), async (req: AuthRequest, res): Promise<void> => {
   try {
     const user = await User.findByPk(req.params.id)
     
     if (!user) {
-      return res.status(404).json({ message: 'User not found' })
+      res.status(404).json({ message: 'User not found' })
+      return
     }
 
     if (user.role === 'admin') {
-      return res.status(403).json({ message: 'Cannot delete admin users' })
+      res.status(403).json({ message: 'Cannot delete admin users' })
+      return
     }
 
     await user.destroy()
     res.json({ message: 'User deleted successfully' })
   } catch (error) {
-    console.error('Delete user error:', error)
+    logger.error('Delete user error:', error)
     res.status(500).json({ message: 'Failed to delete user' })
   }
 })
 
 // Delete food post
-router.delete('/food-posts/:id', authenticate, authorize('admin'), async (req: AuthRequest, res) => {
+router.delete('/food-posts/:id', authenticate, authorize('admin'), async (req: AuthRequest, res): Promise<void> => {
   try {
     const food = await Food.findByPk(req.params.id)
     
     if (!food) {
-      return res.status(404).json({ message: 'Food post not found' })
+      res.status(404).json({ message: 'Food post not found' })
+      return
     }
 
     await food.destroy()
     res.json({ message: 'Food post deleted successfully' })
   } catch (error) {
-    console.error('Delete food post error:', error)
+    logger.error('Delete food post error:', error)
     res.status(500).json({ message: 'Failed to delete food post' })
   }
 })

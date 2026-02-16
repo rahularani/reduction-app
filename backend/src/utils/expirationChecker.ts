@@ -1,10 +1,11 @@
 import Food from '../models/Food.model.js'
 import { Op } from 'sequelize'
+import { logger } from './logger.js'
 
 // Parse freshness duration string to hours
 const parseDurationToHours = (duration: string): number => {
   const match = duration.match(/(\d+)\s*(hour|hours|hr|hrs|h)/i)
-  if (match) {
+  if (match && match[1]) {
     return parseInt(match[1])
   }
   return 24 // Default to 24 hours if can't parse
@@ -44,10 +45,10 @@ export const checkExpiredPosts = async () => {
         }
       )
 
-      console.log(`✅ Marked ${expiredPosts.length} food post(s) as expired`)
+      logger.info(`Marked ${expiredPosts.length} food post(s) as expired`)
     }
   } catch (error) {
-    console.error('❌ Error checking expired posts:', error)
+    logger.error('Error checking expired posts:', error)
   }
 }
 
@@ -59,5 +60,5 @@ export const startExpirationChecker = () => {
   // Then run every 5 minutes
   setInterval(checkExpiredPosts, 5 * 60 * 1000)
   
-  console.log('🕐 Food expiration checker started (runs every 5 minutes)')
+  logger.info('Food expiration checker started (runs every 5 minutes)')
 }

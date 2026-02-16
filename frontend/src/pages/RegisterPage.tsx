@@ -212,7 +212,7 @@ const RegisterPage = () => {
                 theme="filled_black"
                 size="large"
                 text="signup_with"
-                width="100%"
+                width="384"
               />
             </div>
           </div>

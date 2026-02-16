@@ -1,3 +1,6 @@
+# Render Blueprint for Food Waste Reduction App
+# Deploy backend to Render with this configuration
+
 services:
   # Backend API Service
   - type: web
@@ -5,19 +8,24 @@ services:
     env: node
     region: oregon
     plan: free
-    rootDir: backend
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && npm start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 10000
-      - key: DATABASE_URL
-        fromDatabase:
-          name: food-waste-db
-          property: connectionString
+        value: 5001
+      - key: DB_HOST
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        value: food_waste_app
+      - key: DB_PORT
+        value: 3306
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
@@ -27,10 +35,8 @@ services:
       - key: GOOGLE_CLIENT_SECRET
         sync: false
 
-databases:
-  # PostgreSQL Database
-  - name: food-waste-db
-    databaseName: food_waste_app
-    user: food_waste_user
-    plan: free
-    region: oregon
+# Note: You'll need to create a MySQL database separately
+# Options:
+# 1. Render MySQL (paid)
+# 2. Railway MySQL (free $5 credit)
+# 3. PlanetScale (free tier)

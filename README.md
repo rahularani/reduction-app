@@ -56,6 +56,8 @@ A real-time platform connecting food donors (restaurants, hotels, hostels) with 
 - MySQL 8.0 or higher
 - npm or yarn
 
+**Quick Start**: See [SETUP_GUIDE.md](SETUP_GUIDE.md) for detailed setup instructions.
+
 ## 🚀 Installation
 
 ### 1. Clone the repository
@@ -90,6 +92,8 @@ CREATE DATABASE food_waste_app;
 
 ### 4. Configure Environment Variables
 
+**Important**: Never commit `.env` files to version control. They contain sensitive credentials.
+
 **Backend** (`backend/.env`):
 ```env
 PORT=5001
@@ -100,12 +104,20 @@ DB_NAME=food_waste_app
 DB_PORT=3306
 JWT_SECRET=your-super-secret-jwt-key-change-this
 NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
+
+# Google OAuth Configuration (optional)
+GOOGLE_CLIENT_ID=your-google-client-id-here
+GOOGLE_CLIENT_SECRET=your-google-client-secret-here
 ```
 
 **Frontend** (`frontend/.env`):
 ```env
 VITE_API_URL=http://localhost:5001/api
+VITE_GOOGLE_CLIENT_ID=your-google-client-id-here
 ```
+
+See [SECURITY.md](SECURITY.md) for detailed security guidelines.
 
 ### 5. Run the Application
 
@@ -232,6 +244,12 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+## 📄 Documentation
+
+- [Setup Guide](SETUP_GUIDE.md) - Detailed installation and setup instructions
+- [Security Guidelines](SECURITY.md) - Security best practices and guidelines
+- [Changelog](CHANGELOG.md) - Version history and changes
 
 ## 📄 License
 

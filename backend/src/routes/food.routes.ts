@@ -5,6 +5,7 @@ import { authenticate, authorize, AuthRequest } from '../middleware/auth.middlew
 import { upload } from '../middleware/upload.middleware.js'
 import { getIO } from '../socket/socket.js'
 import { calculateExpirationDate } from '../utils/expirationChecker.js'
+import { logger } from '../utils/logger.js'
 
 const router = express.Router()
 
@@ -48,7 +49,7 @@ router.post('/create', authenticate, authorize('donor'), upload.single('image'),
 
     res.status(201).json(food)
   } catch (error) {
-    console.error('Create food error:', error)
+    logger.error('Create food error:', error)
     res.status(500).json({ message: 'Failed to create food post' })
   }
 })
@@ -71,12 +72,12 @@ router.get('/my-posts', authenticate, authorize('donor'), async (req: AuthReques
     })
     res.json(posts)
   } catch (error) {
-    console.error('Fetch posts error:', error)
+    logger.error('Fetch posts error:', error)
     res.status(500).json({ message: 'Failed to fetch posts' })
   }
 })
 
-router.get('/available', authenticate, authorize('volunteer'), async (req: AuthRequest, res) => {
+router.get('/available', authenticate, authorize('volunteer'), async (_req: AuthRequest, res) => {
   try {
     const posts = await Food.findAll({
       where: { status: 'available' },
@@ -91,7 +92,7 @@ router.get('/available', authenticate, authorize('volunteer'), async (req: AuthR
     })
     res.json(posts)
   } catch (error) {
-    console.error('Fetch available food error:', error)
+    logger.error('Fetch available food error:', error)
     res.status(500).json({ message: 'Failed to fetch available food' })
   }
 })
@@ -114,12 +115,12 @@ router.get('/my-claims', authenticate, authorize('volunteer'), async (req: AuthR
     })
     res.json(posts)
   } catch (error) {
-    console.error('Fetch claimed food error:', error)
+    logger.error('Fetch claimed food error:', error)
     res.status(500).json({ message: 'Failed to fetch claimed food' })
   }
 })
 
-router.post('/claim/:id', authenticate, authorize('volunteer'), async (req: AuthRequest, res) => {
+router.post('/claim/:id', authenticate, authorize('volunteer'), async (req: AuthRequest, res): Promise<void> => {
   try {
     const food = await Food.findByPk(req.params.id, {
       include: [
@@ -132,11 +133,13 @@ router.post('/claim/:id', authenticate, authorize('volunteer'), async (req: Auth
     })
     
     if (!food) {
-      return res.status(404).json({ message: 'Food not found' })
+      res.status(404).json({ message: 'Food not found' })
+      return
     }
 
     if (food.status !== 'available') {
-      return res.status(400).json({ message: 'Food already claimed' })
+      res.status(400).json({ message: 'Food already claimed' })
+      return
     }
 
     const otp = generateOTP()
@@ -170,12 +173,12 @@ router.post('/claim/:id', authenticate, authorize('volunteer'), async (req: Auth
       donor: (food as any).donor
     })
   } catch (error) {
-    console.error('Claim food error:', error)
+    logger.error('Claim food error:', error)
     res.status(500).json({ message: 'Failed to claim food' })
   }
 })
 
-router.post('/verify-otp/:id', authenticate, authorize('donor'), async (req: AuthRequest, res) => {
+router.post('/verify-otp/:id', authenticate, authorize('donor'), async (req: AuthRequest, res): Promise<void> => {
   try {
     const { otp } = req.body
     const food = await Food.findByPk(req.params.id, {
@@ -189,19 +192,23 @@ router.post('/verify-otp/:id', authenticate, authorize('donor'), async (req: Aut
     })
 
     if (!food) {
-      return res.status(404).json({ message: 'Food not found' })
+      res.status(404).json({ message: 'Food not found' })
+      return
     }
 
     if (food.donorId !== parseInt(req.userId!)) {
-      return res.status(403).json({ message: 'Not authorized' })
+      res.status(403).json({ message: 'Not authorized' })
+      return
     }
 
     if (food.status !== 'claimed') {
-      return res.status(400).json({ message: 'Food not in claimed status' })
+      res.status(400).json({ message: 'Food not in claimed status' })
+      return
     }
 
     if (food.otp !== otp) {
-      return res.status(400).json({ message: 'Invalid OTP' })
+      res.status(400).json({ message: 'Invalid OTP' })
+      return
     }
 
     // Mark as completed
@@ -224,7 +231,7 @@ router.post('/verify-otp/:id', authenticate, authorize('donor'), async (req: Aut
       }
     })
   } catch (error) {
-    console.error('Verify OTP error:', error)
+    logger.error('Verify OTP error:', error)
     res.status(500).json({ message: 'Failed to verify OTP' })
   }
 })
