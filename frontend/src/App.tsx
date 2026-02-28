@@ -7,6 +7,8 @@ import DonatePage from './pages/DonatePage'
 import DonorDashboard from './pages/DonorDashboard'
 import VolunteerDashboard from './pages/VolunteerDashboard'
 import AdminDashboard from './pages/AdminDashboard'
+import FarmerDashboard from './pages/FarmerDashboard'
+import WasteFoodMarketplace from './pages/WasteFoodMarketplace'
 import ProtectedRoute from './components/ProtectedRoute'
 import { useAuthStore } from './store/authStore'
 
@@ -24,6 +26,7 @@ function App() {
           element={user ? <Navigate to={
             user.role === 'donor' ? '/donor/dashboard' : 
             user.role === 'volunteer' ? '/volunteer/dashboard' : 
+            user.role === 'farmer' ? '/farmer/dashboard' :
             '/admin/dashboard'
           } replace /> : <LoginPage />} 
         />
@@ -32,6 +35,7 @@ function App() {
           element={user ? <Navigate to={
             user.role === 'donor' ? '/donor/dashboard' : 
             user.role === 'volunteer' ? '/volunteer/dashboard' : 
+            user.role === 'farmer' ? '/farmer/dashboard' :
             '/admin/dashboard'
           } replace /> : <RegisterPage />} 
         />
@@ -44,10 +48,26 @@ function App() {
           } 
         />
         <Route 
+          path="/donor/marketplace" 
+          element={
+            <ProtectedRoute allowedRole="donor">
+              <WasteFoodMarketplace />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
           path="/volunteer/dashboard" 
           element={
             <ProtectedRoute allowedRole="volunteer">
               <VolunteerDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/farmer/dashboard" 
+          element={
+            <ProtectedRoute allowedRole="farmer">
+              <FarmerDashboard />
             </ProtectedRoute>
           } 
         />

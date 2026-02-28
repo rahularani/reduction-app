@@ -14,7 +14,7 @@ const RegisterPage = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'donor' as 'donor' | 'volunteer',
+    role: 'donor' as 'donor' | 'volunteer' | 'farmer',
   })
   const [loading, setLoading] = useState(false)
 
@@ -62,6 +62,8 @@ const RegisterPage = () => {
         navigate('/donor/dashboard')
       } else if (data.user.role === 'volunteer') {
         navigate('/volunteer/dashboard')
+      } else if (data.user.role === 'farmer') {
+        navigate('/farmer/dashboard')
       } else {
         navigate('/admin/dashboard')
       }
@@ -156,32 +158,45 @@ const RegisterPage = () => {
               <label className="block text-sm font-medium text-gray-300 mb-3">
                 I am a
               </label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, role: 'donor' })}
-                  className={`p-4 rounded-xl border-2 transition-all ${
+                  className={`p-3 rounded-xl border-2 transition-all ${
                     formData.role === 'donor'
                       ? 'border-primary-500 bg-primary-500/10'
                       : 'border-dark-700 bg-dark-800 hover:border-dark-600'
                   }`}
                 >
-                  <UserCircle className="w-8 h-8 mx-auto mb-2 text-primary-500" />
-                  <div className="text-white font-medium">Donor</div>
-                  <div className="text-xs text-gray-400 mt-1">Restaurant/Hotel</div>
+                  <UserCircle className="w-6 h-6 mx-auto mb-1 text-primary-500" />
+                  <div className="text-white font-medium text-sm">Donor</div>
+                  <div className="text-xs text-gray-400 mt-1">Restaurant</div>
                 </button>
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, role: 'volunteer' })}
-                  className={`p-4 rounded-xl border-2 transition-all ${
+                  className={`p-3 rounded-xl border-2 transition-all ${
                     formData.role === 'volunteer'
                       ? 'border-primary-500 bg-primary-500/10'
                       : 'border-dark-700 bg-dark-800 hover:border-dark-600'
                   }`}
                 >
-                  <UserCircle className="w-8 h-8 mx-auto mb-2 text-primary-500" />
-                  <div className="text-white font-medium">Volunteer</div>
-                  <div className="text-xs text-gray-400 mt-1">NGO/Individual</div>
+                  <UserCircle className="w-6 h-6 mx-auto mb-1 text-primary-500" />
+                  <div className="text-white font-medium text-sm">Volunteer</div>
+                  <div className="text-xs text-gray-400 mt-1">NGO</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, role: 'farmer' })}
+                  className={`p-3 rounded-xl border-2 transition-all ${
+                    formData.role === 'farmer'
+                      ? 'border-primary-500 bg-primary-500/10'
+                      : 'border-dark-700 bg-dark-800 hover:border-dark-600'
+                  }`}
+                >
+                  <UserCircle className="w-6 h-6 mx-auto mb-1 text-primary-500" />
+                  <div className="text-white font-medium text-sm">Farmer</div>
+                  <div className="text-xs text-gray-400 mt-1">Animal Feed</div>
                 </button>
               </div>
             </div>

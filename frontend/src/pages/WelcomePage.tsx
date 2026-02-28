@@ -19,8 +19,8 @@ const WelcomePage = () => {
 
         {/* Main Heading */}
         <div className="space-y-4">
-          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
-            Food Waste Reduction
+          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-primary-400 via-primary-500 to-primary-600 bg-clip-text text-transparent">
+            FeedForward
           </h1>
           <p className="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto">
             Connecting surplus food with those who need it most

@@ -7,6 +7,7 @@ import { connectDB } from './config/database.js'
 import authRoutes from './routes/auth.routes.js'
 import foodRoutes from './routes/food.routes.js'
 import adminRoutes from './routes/admin.routes.js'
+import wasteFoodRoutes from './routes/wastefood.routes.js'
 import { initializeSocket } from './socket/socket.js'
 import { startExpirationChecker } from './utils/expirationChecker.js'
 import { logger } from './utils/logger.js'
@@ -45,6 +46,7 @@ app.use('/uploads', (_req, res, next) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/food', foodRoutes)
 app.use('/api/admin', adminRoutes)
+app.use('/api/waste-food', wasteFoodRoutes)
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', message: 'Server is running' })

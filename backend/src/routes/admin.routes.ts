@@ -1,6 +1,7 @@
 import express from 'express'
 import User from '../models/User.model.js'
 import Food from '../models/Food.model.js'
+import WasteFood from '../models/WasteFood.model.js'
 import { authenticate, authorize, AuthRequest } from '../middleware/auth.middleware.js'
 import { logger } from '../utils/logger.js'
 
@@ -51,19 +52,29 @@ router.get('/stats', authenticate, authorize('admin'), async (_req: AuthRequest,
     const totalUsers = await User.count()
     const totalDonors = await User.count({ where: { role: 'donor' } })
     const totalVolunteers = await User.count({ where: { role: 'volunteer' } })
+    const totalFarmers = await User.count({ where: { role: 'farmer' } })
     const totalFoodPosts = await Food.count()
     const availableFood = await Food.count({ where: { status: 'available' } })
     const claimedFood = await Food.count({ where: { status: 'claimed' } })
     const completedFood = await Food.count({ where: { status: 'completed' } })
+    const totalWasteFoodPosts = await WasteFood.count()
+    const availableWasteFood = await WasteFood.count({ where: { status: 'available' } })
+    const reservedWasteFood = await WasteFood.count({ where: { status: 'reserved' } })
+    const soldWasteFood = await WasteFood.count({ where: { status: 'sold' } })
 
     res.json({
       totalUsers,
       totalDonors,
       totalVolunteers,
+      totalFarmers,
       totalFoodPosts,
       availableFood,
       claimedFood,
-      completedFood
+      completedFood,
+      totalWasteFoodPosts,
+      availableWasteFood,
+      reservedWasteFood,
+      soldWasteFood
     })
   } catch (error) {
     logger.error('Fetch stats error:', error)
@@ -109,6 +120,49 @@ router.delete('/food-posts/:id', authenticate, authorize('admin'), async (req: A
   } catch (error) {
     logger.error('Delete food post error:', error)
     res.status(500).json({ message: 'Failed to delete food post' })
+  }
+})
+
+// Get all waste food posts
+router.get('/waste-food-posts', authenticate, authorize('admin'), async (_req: AuthRequest, res) => {
+  try {
+    const posts = await WasteFood.findAll({
+      include: [
+        {
+          model: User,
+          as: 'seller',
+          attributes: ['id', 'name', 'email']
+        },
+        {
+          model: User,
+          as: 'buyer',
+          attributes: ['id', 'name', 'email']
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    })
+    res.json(posts)
+  } catch (error) {
+    logger.error('Fetch waste food posts error:', error)
+    res.status(500).json({ message: 'Failed to fetch waste food posts' })
+  }
+})
+
+// Delete waste food post
+router.delete('/waste-food-posts/:id', authenticate, authorize('admin'), async (req: AuthRequest, res): Promise<void> => {
+  try {
+    const wasteFood = await WasteFood.findByPk(req.params.id)
+    
+    if (!wasteFood) {
+      res.status(404).json({ message: 'Waste food post not found' })
+      return
+    }
+
+    await wasteFood.destroy()
+    res.json({ message: 'Waste food post deleted successfully' })
+  } catch (error) {
+    logger.error('Delete waste food post error:', error)
+    res.status(500).json({ message: 'Failed to delete waste food post' })
   }
 })
 

@@ -28,6 +28,8 @@ const LoginPage = () => {
         navigate('/donor/dashboard')
       } else if (data.user.role === 'volunteer') {
         navigate('/volunteer/dashboard')
+      } else if (data.user.role === 'farmer') {
+        navigate('/farmer/dashboard')
       } else {
         navigate('/admin/dashboard')
       }
@@ -50,6 +52,8 @@ const LoginPage = () => {
         navigate('/donor/dashboard')
       } else if (data.user.role === 'volunteer') {
         navigate('/volunteer/dashboard')
+      } else if (data.user.role === 'farmer') {
+        navigate('/farmer/dashboard')
       } else {
         navigate('/admin/dashboard')
       }

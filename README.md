@@ -1,6 +1,6 @@
-# Food Waste Reduction App 🍽️
+# FeedForward 🍽️
 
-A real-time platform connecting food donors (restaurants, hotels, hostels) with NGOs and volunteers to reduce food waste and support communities in need.
+A real-time platform connecting food donors (restaurants, hotels, hostels) with NGOs, volunteers, and farmers to reduce food waste and support communities in need.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)
@@ -13,6 +13,7 @@ A real-time platform connecting food donors (restaurants, hotels, hostels) with 
 - 📍 **GPS Location Integration** - Auto-capture pickup location
 - 🔔 **Real-time Notifications** when volunteers claim food
 - ✅ **OTP Verification** for secure delivery confirmation
+- 💰 **Waste Food Marketplace** - Sell expired food to farmers for animal feed
 - 📊 **Dashboard** to track all posted food and delivery status
 
 ### For Volunteers (NGOs, Individuals)
@@ -21,6 +22,18 @@ A real-time platform connecting food donors (restaurants, hotels, hostels) with 
 - 🎫 **OTP System** for food collection
 - 📱 **Live Updates** when new food is posted
 - 📋 **Track Claims** with delivery status
+
+### For Farmers
+- 🛒 **Buy Waste Food** for animal feed at affordable prices
+- 📍 **Location-based Listings** with Google Maps
+- 💳 **Secure Transactions** with seller contact
+- 📦 **Purchase History** tracking
+
+### For Admins
+- 👥 **User Management** - Monitor all users (donors, volunteers, farmers)
+- 📊 **Analytics Dashboard** - Track donations and marketplace stats
+- 🗑️ **Content Moderation** - Delete inappropriate posts
+- 📈 **System Overview** - Complete platform insights
 
 ### Core Features
 - 🔐 **Secure Authentication** with JWT
@@ -63,8 +76,8 @@ A real-time platform connecting food donors (restaurants, hotels, hostels) with 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/food-waste-reduction-app.git
-cd food-waste-reduction-app
+git clone https://github.com/yourusername/feedforward.git
+cd feedforward
 ```
 
 ### 2. Install dependencies
@@ -169,11 +182,11 @@ npm run dev
 ## 🏗️ Project Structure
 
 ```
-food-waste-reduction-app/
+feedforward/
 ├── frontend/                 # React TypeScript frontend
 │   ├── src/
 │   │   ├── components/      # Reusable components
-│   │   ├── pages/           # Page components
+│   │   ├── pages/           # Page components (Donor, Volunteer, Farmer, Admin)
 │   │   ├── store/           # Zustand state management
 │   │   ├── utils/           # Utility functions
 │   │   └── App.tsx          # Main app component
@@ -183,7 +196,7 @@ food-waste-reduction-app/
 ├── backend/                  # Express TypeScript backend
 │   ├── src/
 │   │   ├── config/          # Database configuration
-│   │   ├── models/          # Sequelize models
+│   │   ├── models/          # Sequelize models (User, Food, WasteFood)
 │   │   ├── routes/          # API routes
 │   │   ├── middleware/      # Custom middleware
 │   │   ├── socket/          # Socket.IO configuration
@@ -271,4 +284,4 @@ For support, email your@email.com or open an issue in the repository.
 
 ---
 
-**Made with 💚 to reduce food waste and help communities**
+**FeedForward - Moving food forward, not wasting it 💚**

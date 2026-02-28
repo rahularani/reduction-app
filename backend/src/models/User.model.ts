@@ -7,7 +7,7 @@ interface UserAttributes {
   name: string
   email: string
   password: string
-  role: 'donor' | 'volunteer' | 'admin'
+  role: 'donor' | 'volunteer' | 'admin' | 'farmer'
   createdAt?: Date
   updatedAt?: Date
 }
@@ -19,7 +19,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public name!: string
   public email!: string
   public password!: string
-  public role!: 'donor' | 'volunteer' | 'admin'
+  public role!: 'donor' | 'volunteer' | 'admin' | 'farmer'
   public readonly createdAt!: Date
   public readonly updatedAt!: Date
 
@@ -52,7 +52,7 @@ User.init(
       allowNull: false
     },
     role: {
-      type: DataTypes.ENUM('donor', 'volunteer', 'admin'),
+      type: DataTypes.ENUM('donor', 'volunteer', 'admin', 'farmer'),
       allowNull: false
     }
   },

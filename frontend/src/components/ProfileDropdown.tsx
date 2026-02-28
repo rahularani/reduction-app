@@ -35,13 +35,33 @@ const ProfileDropdown = () => {
   }
 
   const getRoleBadgeColor = (role: string) => {
-    return role === 'donor' 
-      ? 'bg-blue-500/10 text-blue-500 border-blue-500/30' 
-      : 'bg-green-500/10 text-green-500 border-green-500/30'
+    switch(role) {
+      case 'donor':
+        return 'bg-blue-500/10 text-blue-500 border-blue-500/30'
+      case 'volunteer':
+        return 'bg-green-500/10 text-green-500 border-green-500/30'
+      case 'farmer':
+        return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/30'
+      case 'admin':
+        return 'bg-purple-500/10 text-purple-500 border-purple-500/30'
+      default:
+        return 'bg-gray-500/10 text-gray-500 border-gray-500/30'
+    }
   }
 
   const getRoleLabel = (role: string) => {
-    return role === 'donor' ? 'Donor' : 'Volunteer'
+    switch(role) {
+      case 'donor':
+        return 'Donor'
+      case 'volunteer':
+        return 'Volunteer'
+      case 'farmer':
+        return 'Farmer'
+      case 'admin':
+        return 'Admin'
+      default:
+        return role.charAt(0).toUpperCase() + role.slice(1)
+    }
   }
 
   if (!user) return null
