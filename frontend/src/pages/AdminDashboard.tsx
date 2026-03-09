@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Users, Package, TrendingUp, Activity, Trash2, UserCheck, UserX, Tractor, Store } from 'lucide-react'
+import { Users, Package, TrendingUp, Trash2, UserCheck, UserX, Tractor, Store } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '../store/authStore'
 import api from '../utils/api'
 import ProfileDropdown from '../components/ProfileDropdown'
+import { getSocket } from '../utils/socket'
 
 interface User {
   id: number
@@ -69,6 +70,79 @@ const AdminDashboard = () => {
     fetchUsers()
     fetchFoodPosts()
     fetchWasteFoodPosts()
+
+    // Initialize socket connection for real-time updates
+    const socket = getSocket()
+
+    // Listen for new food posts
+    socket.on('newFoodPost', (newPost: FoodPost) => {
+      console.log('Admin: New food post received:', newPost)
+      setFoodPosts((prevPosts) => [newPost, ...prevPosts])
+      fetchStats() // Update statistics
+      toast.success(`New food post: ${newPost.foodType}`)
+    })
+
+    // Listen for food claimed events
+    socket.on('foodClaimed', ({ foodId, status }: { foodId: number; status: string }) => {
+      console.log('Admin: Food claimed:', foodId)
+      setFoodPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === foodId ? { ...post, status: status as 'claimed' } : post
+        )
+      )
+      fetchStats() // Update statistics
+    })
+
+    // Listen for food completed events
+    socket.on('foodCompleted', ({ foodId }: { foodId: number }) => {
+      console.log('Admin: Food completed:', foodId)
+      setFoodPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === foodId ? { ...post, status: 'completed' as const } : post
+        )
+      )
+      fetchStats() // Update statistics
+    })
+
+    // Listen for new waste food posts
+    socket.on('newWasteFoodPost', (newPost: WasteFoodPost) => {
+      console.log('Admin: New waste food post received:', newPost)
+      setWasteFoodPosts((prevPosts) => [newPost, ...prevPosts])
+      fetchStats() // Update statistics
+      toast.success(`New waste food post: ${newPost.foodType}`)
+    })
+
+    // Listen for waste food reserved events
+    socket.on('wasteFoodReserved', ({ wasteFoodId, status }: { wasteFoodId: number; status: string }) => {
+      console.log('Admin: Waste food reserved:', wasteFoodId)
+      setWasteFoodPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === wasteFoodId ? { ...post, status: status as 'reserved' } : post
+        )
+      )
+      fetchStats() // Update statistics
+    })
+
+    // Listen for waste food sold events
+    socket.on('wasteFoodSold', ({ wasteFoodId }: { wasteFoodId: number }) => {
+      console.log('Admin: Waste food sold:', wasteFoodId)
+      setWasteFoodPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === wasteFoodId ? { ...post, status: 'sold' as const } : post
+        )
+      )
+      fetchStats() // Update statistics
+    })
+
+    // Cleanup socket listeners on unmount
+    return () => {
+      socket.off('newFoodPost')
+      socket.off('foodClaimed')
+      socket.off('foodCompleted')
+      socket.off('newWasteFoodPost')
+      socket.off('wasteFoodReserved')
+      socket.off('wasteFoodSold')
+    }
   }, [user, navigate])
 
   const fetchStats = async () => {
@@ -160,21 +234,21 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-dark-950">
       {/* Header */}
       <header className="bg-dark-900 border-b border-dark-800">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div>
-            <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
-            <p className="text-gray-400 text-sm">Manage users and food posts</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-white">Admin Dashboard</h1>
+            <p className="text-gray-400 text-xs sm:text-sm">Manage users and food posts</p>
           </div>
           <ProfileDropdown />
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Tabs */}
-        <div className="flex gap-4 mb-6 border-b border-dark-800 overflow-x-auto">
+        <div className="flex gap-2 sm:gap-4 mb-6 border-b border-dark-800 overflow-x-auto">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`pb-3 px-4 font-medium transition-colors relative whitespace-nowrap ${
+            className={`pb-3 px-3 sm:px-4 font-medium transition-colors relative whitespace-nowrap text-sm sm:text-base ${
               activeTab === 'overview' ? 'text-primary-500' : 'text-gray-400 hover:text-gray-300'
             }`}
           >
@@ -185,7 +259,7 @@ const AdminDashboard = () => {
           </button>
           <button
             onClick={() => setActiveTab('users')}
-            className={`pb-3 px-4 font-medium transition-colors relative whitespace-nowrap ${
+            className={`pb-3 px-3 sm:px-4 font-medium transition-colors relative whitespace-nowrap text-sm sm:text-base ${
               activeTab === 'users' ? 'text-primary-500' : 'text-gray-400 hover:text-gray-300'
             }`}
           >
@@ -196,7 +270,7 @@ const AdminDashboard = () => {
           </button>
           <button
             onClick={() => setActiveTab('food')}
-            className={`pb-3 px-4 font-medium transition-colors relative whitespace-nowrap ${
+            className={`pb-3 px-3 sm:px-4 font-medium transition-colors relative whitespace-nowrap text-sm sm:text-base ${
               activeTab === 'food' ? 'text-primary-500' : 'text-gray-400 hover:text-gray-300'
             }`}
           >
@@ -207,7 +281,7 @@ const AdminDashboard = () => {
           </button>
           <button
             onClick={() => setActiveTab('waste-food')}
-            className={`pb-3 px-4 font-medium transition-colors relative whitespace-nowrap ${
+            className={`pb-3 px-3 sm:px-4 font-medium transition-colors relative whitespace-nowrap text-sm sm:text-base ${
               activeTab === 'waste-food' ? 'text-primary-500' : 'text-gray-400 hover:text-gray-300'
             }`}
           >
@@ -221,95 +295,95 @@ const AdminDashboard = () => {
         {/* Overview Tab */}
         {activeTab === 'overview' && stats && (
           <div className="space-y-6">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               <div className="card">
                 <div className="flex items-center justify-between mb-4">
                   <div className="bg-blue-500/10 p-3 rounded-xl">
-                    <Users className="w-6 h-6 text-blue-500" />
+                    <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
                   </div>
-                  <TrendingUp className="w-5 h-5 text-green-500" />
+                  <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-1">{stats.totalUsers}</h3>
-                <p className="text-gray-400 text-sm">Total Users</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">{stats.totalUsers}</h3>
+                <p className="text-gray-400 text-xs sm:text-sm">Total Users</p>
               </div>
 
               <div className="card">
                 <div className="flex items-center justify-between mb-4">
                   <div className="bg-purple-500/10 p-3 rounded-xl">
-                    <UserCheck className="w-6 h-6 text-purple-500" />
+                    <UserCheck className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-1">{stats.totalDonors}</h3>
-                <p className="text-gray-400 text-sm">Donors</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">{stats.totalDonors}</h3>
+                <p className="text-gray-400 text-xs sm:text-sm">Donors</p>
               </div>
 
               <div className="card">
                 <div className="flex items-center justify-between mb-4">
                   <div className="bg-green-500/10 p-3 rounded-xl">
-                    <UserX className="w-6 h-6 text-green-500" />
+                    <UserX className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-1">{stats.totalVolunteers}</h3>
-                <p className="text-gray-400 text-sm">Volunteers</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">{stats.totalVolunteers}</h3>
+                <p className="text-gray-400 text-xs sm:text-sm">Volunteers</p>
               </div>
 
               <div className="card">
                 <div className="flex items-center justify-between mb-4">
                   <div className="bg-yellow-500/10 p-3 rounded-xl">
-                    <Tractor className="w-6 h-6 text-yellow-500" />
+                    <Tractor className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-1">{stats.totalFarmers}</h3>
-                <p className="text-gray-400 text-sm">Farmers</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">{stats.totalFarmers}</h3>
+                <p className="text-gray-400 text-xs sm:text-sm">Farmers</p>
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div className="card">
                 <div className="flex items-center gap-3 mb-4">
-                  <Package className="w-6 h-6 text-primary-500" />
-                  <h3 className="text-lg font-semibold text-white">Food Donations</h3>
+                  <Package className="w-5 h-5 sm:w-6 sm:h-6 text-primary-500" />
+                  <h3 className="text-base sm:text-lg font-semibold text-white">Food Donations</h3>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-3 sm:gap-4">
                   <div>
-                    <p className="text-2xl font-bold text-green-500">{stats.availableFood}</p>
+                    <p className="text-xl sm:text-2xl font-bold text-green-500">{stats.availableFood}</p>
                     <p className="text-xs text-gray-400">Available</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-yellow-500">{stats.claimedFood}</p>
+                    <p className="text-xl sm:text-2xl font-bold text-yellow-500">{stats.claimedFood}</p>
                     <p className="text-xs text-gray-400">Claimed</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-blue-500">{stats.completedFood}</p>
+                    <p className="text-xl sm:text-2xl font-bold text-blue-500">{stats.completedFood}</p>
                     <p className="text-xs text-gray-400">Completed</p>
                   </div>
                 </div>
                 <div className="mt-4 pt-4 border-t border-dark-700">
-                  <p className="text-sm text-gray-400">Total Posts: <span className="text-white font-semibold">{stats.totalFoodPosts}</span></p>
+                  <p className="text-xs sm:text-sm text-gray-400">Total Posts: <span className="text-white font-semibold">{stats.totalFoodPosts}</span></p>
                 </div>
               </div>
 
               <div className="card">
                 <div className="flex items-center gap-3 mb-4">
-                  <Store className="w-6 h-6 text-yellow-500" />
-                  <h3 className="text-lg font-semibold text-white">Waste Food Marketplace</h3>
+                  <Store className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500" />
+                  <h3 className="text-base sm:text-lg font-semibold text-white">Waste Food Marketplace</h3>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-3 sm:gap-4">
                   <div>
-                    <p className="text-2xl font-bold text-green-500">{stats.availableWasteFood}</p>
+                    <p className="text-xl sm:text-2xl font-bold text-green-500">{stats.availableWasteFood}</p>
                     <p className="text-xs text-gray-400">Available</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-yellow-500">{stats.reservedWasteFood}</p>
+                    <p className="text-xl sm:text-2xl font-bold text-yellow-500">{stats.reservedWasteFood}</p>
                     <p className="text-xs text-gray-400">Reserved</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-blue-500">{stats.soldWasteFood}</p>
+                    <p className="text-xl sm:text-2xl font-bold text-blue-500">{stats.soldWasteFood}</p>
                     <p className="text-xs text-gray-400">Sold</p>
                   </div>
                 </div>
                 <div className="mt-4 pt-4 border-t border-dark-700">
-                  <p className="text-sm text-gray-400">Total Posts: <span className="text-white font-semibold">{stats.totalWasteFoodPosts}</span></p>
+                  <p className="text-xs sm:text-sm text-gray-400">Total Posts: <span className="text-white font-semibold">{stats.totalWasteFoodPosts}</span></p>
                 </div>
               </div>
             </div>
@@ -319,50 +393,52 @@ const AdminDashboard = () => {
         {/* Users Tab */}
         {activeTab === 'users' && (
           <div className="card">
-            <h2 className="text-xl font-semibold text-white mb-4">All Users</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-dark-800">
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Name</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Email</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Role</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Joined</th>
-                    <th className="text-right py-3 px-4 text-gray-400 font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => (
-                    <tr key={user.id} className="border-b border-dark-800 hover:bg-dark-800/50">
-                      <td className="py-3 px-4 text-white">{user.name}</td>
-                      <td className="py-3 px-4 text-gray-400">{user.email}</td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          user.role === 'donor' 
-                            ? 'bg-blue-500/10 text-blue-500' 
-                            : user.role === 'volunteer'
-                            ? 'bg-green-500/10 text-green-500'
-                            : 'bg-yellow-500/10 text-yellow-500'
-                        }`}>
-                          {user.role}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-gray-400">
-                        {new Date(user.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => handleDeleteUser(user.id)}
-                          className="text-red-500 hover:text-red-400 p-2"
-                          title="Delete user"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
+            <h2 className="text-lg sm:text-xl font-semibold text-white mb-4">All Users</h2>
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <div className="inline-block min-w-full align-middle">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-dark-800">
+                      <th className="text-left py-3 px-4 text-gray-400 font-medium text-xs sm:text-sm">Name</th>
+                      <th className="text-left py-3 px-4 text-gray-400 font-medium text-xs sm:text-sm">Email</th>
+                      <th className="text-left py-3 px-4 text-gray-400 font-medium text-xs sm:text-sm">Role</th>
+                      <th className="text-left py-3 px-4 text-gray-400 font-medium text-xs sm:text-sm hidden sm:table-cell">Joined</th>
+                      <th className="text-right py-3 px-4 text-gray-400 font-medium text-xs sm:text-sm">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {users.map((user) => (
+                      <tr key={user.id} className="border-b border-dark-800 hover:bg-dark-800/50">
+                        <td className="py-3 px-4 text-white text-sm">{user.name}</td>
+                        <td className="py-3 px-4 text-gray-400 text-xs sm:text-sm">{user.email}</td>
+                        <td className="py-3 px-4">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            user.role === 'donor' 
+                              ? 'bg-blue-500/10 text-blue-500' 
+                              : user.role === 'volunteer'
+                              ? 'bg-green-500/10 text-green-500'
+                              : 'bg-yellow-500/10 text-yellow-500'
+                          }`}>
+                            {user.role}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-gray-400 text-xs sm:text-sm hidden sm:table-cell">
+                          {new Date(user.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <button
+                            onClick={() => handleDeleteUser(user.id)}
+                            className="text-red-500 hover:text-red-400 p-2"
+                            title="Delete user"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}

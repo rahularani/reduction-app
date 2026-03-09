@@ -16,7 +16,7 @@ function App() {
   const { user } = useAuthStore()
 
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Toaster position="top-right" />
       <Routes>
         <Route path="/" element={<WelcomePage />} />

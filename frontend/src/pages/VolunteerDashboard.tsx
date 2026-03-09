@@ -166,7 +166,7 @@ const VolunteerDashboard = () => {
         <img 
           src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001'}${post.imageUrl}`} 
           alt={post.foodType}
-          className="w-full h-48 object-cover rounded-xl mb-4"
+          className="w-full h-40 sm:h-48 object-cover rounded-xl mb-4"
           onError={(e) => {
             console.error('Image failed to load:', post.imageUrl)
             e.currentTarget.style.display = 'none'
@@ -175,11 +175,11 @@ const VolunteerDashboard = () => {
       )}
       
       <div className="flex items-start justify-between mb-4">
-        <div className="bg-primary-500/10 p-3 rounded-xl">
-          <Package className="w-6 h-6 text-primary-500" />
+        <div className="bg-primary-500/10 p-2 sm:p-3 rounded-xl">
+          <Package className="w-5 h-5 sm:w-6 sm:h-6 text-primary-500" />
         </div>
         {isClaimed && (
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+          <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${
             post.status === 'claimed' 
               ? 'bg-yellow-500/10 text-yellow-500' 
               : 'bg-green-500/10 text-green-500'
@@ -189,15 +189,15 @@ const VolunteerDashboard = () => {
         )}
       </div>
 
-      <h3 className="text-lg font-semibold text-white mb-2">{post.foodType}</h3>
-      <p className="text-sm text-gray-500 mb-3">by {post.donor.name}</p>
+      <h3 className="text-base sm:text-lg font-semibold text-white mb-2">{post.foodType}</h3>
+      <p className="text-xs sm:text-sm text-gray-500 mb-3">by {post.donor.name}</p>
 
       {/* Show OTP for claimed posts */}
       {isClaimed && post.status === 'claimed' && post.otp && (
-        <div className="mb-4 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+        <div className="mb-4 p-3 sm:p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
           <p className="text-xs text-yellow-500 mb-2 font-medium">Your OTP (Show to donor)</p>
           <div className="flex items-center justify-between">
-            <div className="text-2xl font-bold text-yellow-500 tracking-widest">
+            <div className="text-xl sm:text-2xl font-bold text-yellow-500 tracking-widest">
               {post.otp}
             </div>
             <button
@@ -217,33 +217,33 @@ const VolunteerDashboard = () => {
 
       {/* Show success message for completed */}
       {isClaimed && post.status === 'completed' && (
-        <div className="mb-4 p-4 bg-green-500/10 border border-green-500/30 rounded-xl">
+        <div className="mb-4 p-3 sm:p-4 bg-green-500/10 border border-green-500/30 rounded-xl">
           <div className="flex items-center gap-2 text-green-500">
             <CheckCircle className="w-5 h-5" />
-            <span className="font-medium">Delivery Completed Successfully!</span>
+            <span className="font-medium text-sm sm:text-base">Delivery Completed Successfully!</span>
           </div>
           <p className="text-xs text-gray-400 mt-2">Thank you for helping reduce food waste! 🌱</p>
         </div>
       )}
 
-      <div className="space-y-2 text-sm text-gray-400 mb-4">
+      <div className="space-y-2 text-xs sm:text-sm text-gray-400 mb-4">
         <div className="flex items-center gap-2">
-          <Package className="w-4 h-4" />
-          <span>{post.quantity}</span>
+          <Package className="w-4 h-4 flex-shrink-0" />
+          <span className="truncate">{post.quantity}</span>
         </div>
         <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4" />
-          <span>Fresh for {post.freshnessDuration}</span>
+          <Clock className="w-4 h-4 flex-shrink-0" />
+          <span className="truncate">Fresh for {post.freshnessDuration}</span>
         </div>
         {/* Hide location if delivery is completed */}
         {post.status !== 'completed' && (
           <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4" />
+            <MapPin className="w-4 h-4 flex-shrink-0" />
             <span className="flex-1 truncate">{post.pickupLocation}</span>
             {post.latitude && post.longitude && (
               <button
                 onClick={() => openInGoogleMaps(post.latitude!, post.longitude!)}
-                className="text-primary-500 hover:text-primary-400"
+                className="text-primary-500 hover:text-primary-400 flex-shrink-0"
                 title="Open in Google Maps"
               >
                 <Navigation className="w-4 h-4" />
@@ -253,8 +253,8 @@ const VolunteerDashboard = () => {
         )}
         {post.status === 'completed' && (
           <div className="flex items-center gap-2 text-gray-600">
-            <MapPin className="w-4 h-4" />
-            <span className="italic">Location hidden (delivery completed)</span>
+            <MapPin className="w-4 h-4 flex-shrink-0" />
+            <span className="italic text-xs">Location hidden (delivery completed)</span>
           </div>
         )}
       </div>
@@ -262,7 +262,7 @@ const VolunteerDashboard = () => {
       {!isClaimed && post.status === 'available' && (
         <button
           onClick={() => openClaimModal(post)}
-          className="btn-primary w-full flex items-center justify-center gap-2"
+          className="btn-primary w-full flex items-center justify-center gap-2 text-sm sm:text-base"
         >
           <CheckCircle className="w-4 h-4" />
           Claim Food
@@ -272,7 +272,7 @@ const VolunteerDashboard = () => {
       {isClaimed && post.status === 'claimed' && post.latitude && post.longitude && (
         <button
           onClick={() => openInGoogleMaps(post.latitude!, post.longitude!)}
-          className="btn-primary w-full flex items-center justify-center gap-2"
+          className="btn-primary w-full flex items-center justify-center gap-2 text-sm sm:text-base"
         >
           <Navigation className="w-4 h-4" />
           Get Directions
@@ -284,10 +284,10 @@ const VolunteerDashboard = () => {
   return (
     <div className="min-h-screen bg-dark-950">
       <header className="bg-dark-900 border-b border-dark-800">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div>
-            <h1 className="text-2xl font-bold text-white">Volunteer Dashboard</h1>
-            <p className="text-gray-400 text-sm">Welcome, {user?.name}</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-white">Volunteer Dashboard</h1>
+            <p className="text-gray-400 text-xs sm:text-sm">Welcome, {user?.name}</p>
           </div>
           <div className="flex items-center gap-2">
             <VolunteerNotificationDropdown />
@@ -296,12 +296,12 @@ const VolunteerDashboard = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Tabs */}
-        <div className="flex gap-4 mb-6 border-b border-dark-800">
+        <div className="flex gap-2 sm:gap-4 mb-6 border-b border-dark-800">
           <button
             onClick={() => setActiveTab('available')}
-            className={`pb-3 px-4 font-medium transition-colors relative ${
+            className={`pb-3 px-3 sm:px-4 font-medium transition-colors relative text-sm sm:text-base ${
               activeTab === 'available'
                 ? 'text-primary-500'
                 : 'text-gray-400 hover:text-gray-300'
@@ -319,7 +319,7 @@ const VolunteerDashboard = () => {
           </button>
           <button
             onClick={() => setActiveTab('claimed')}
-            className={`pb-3 px-4 font-medium transition-colors relative ${
+            className={`pb-3 px-3 sm:px-4 font-medium transition-colors relative text-sm sm:text-base ${
               activeTab === 'claimed'
                 ? 'text-primary-500'
                 : 'text-gray-400 hover:text-gray-300'
@@ -340,23 +340,23 @@ const VolunteerDashboard = () => {
         {/* Available Food Tab */}
         {activeTab === 'available' && (
           <>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-white">Available Food</h2>
-              <div className="flex items-center gap-2 text-sm text-gray-400">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
+              <h2 className="text-lg sm:text-xl font-semibold text-white">Available Food</h2>
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-400">
                 <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></div>
                 <span>Live Updates</span>
               </div>
             </div>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {availablePosts.map((post) => renderFoodCard(post, false))}
             </div>
 
             {availablePosts.length === 0 && (
               <div className="text-center py-12">
-                <Package className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-400">No available food at the moment</p>
-                <p className="text-gray-500 text-sm mt-2">New posts will appear here automatically</p>
+                <Package className="w-12 h-12 sm:w-16 sm:h-16 text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-400 text-sm sm:text-base">No available food at the moment</p>
+                <p className="text-gray-500 text-xs sm:text-sm mt-2">New posts will appear here automatically</p>
               </div>
             )}
           </>
@@ -365,17 +365,17 @@ const VolunteerDashboard = () => {
         {/* My Claims Tab */}
         {activeTab === 'claimed' && (
           <>
-            <h2 className="text-xl font-semibold text-white mb-6">My Claimed Food</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-white mb-6">My Claimed Food</h2>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {claimedPosts.map((post) => renderFoodCard(post, true))}
             </div>
 
             {claimedPosts.length === 0 && (
               <div className="text-center py-12">
-                <Package className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-400">You haven't claimed any food yet</p>
-                <p className="text-gray-500 text-sm mt-2">
+                <Package className="w-12 h-12 sm:w-16 sm:h-16 text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-400 text-sm sm:text-base">You haven't claimed any food yet</p>
+                <p className="text-gray-500 text-xs sm:text-sm mt-2">
                   Go to "Available Food" tab to claim food
                 </p>
               </div>

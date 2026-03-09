@@ -90,6 +90,7 @@ const WasteFoodMarketplace = () => {
         toast.error('Image size should be less than 5MB')
         return
       }
+      
       setSelectedImage(file)
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -200,24 +201,24 @@ const WasteFoodMarketplace = () => {
   return (
     <div className="min-h-screen bg-dark-950">
       <header className="bg-dark-900 border-b border-dark-800">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div>
-            <h1 className="text-2xl font-bold text-white">Waste Food Marketplace</h1>
-            <p className="text-gray-400 text-sm">Sell expired food to farmers for animal feed</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-white">Waste Food Marketplace</h1>
+            <p className="text-gray-400 text-xs sm:text-sm">Sell expired food to farmers for animal feed</p>
           </div>
           <ProfileDropdown />
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <button onClick={() => setShowModal(true)} className="btn-primary flex items-center gap-2">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="mb-6 sm:mb-8">
+          <button onClick={() => setShowModal(true)} className="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto">
             <Plus className="w-5 h-5" />
             List Waste Food
           </button>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {posts.map((post) => (
             <div key={post.id} className="card hover:scale-105 transition-transform">
               {post.imageUrl && (
@@ -420,7 +421,10 @@ const WasteFoodMarketplace = () => {
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary flex-1">
+                <button 
+                  type="submit" 
+                  className="btn-primary flex-1"
+                >
                   List Food
                 </button>
               </div>

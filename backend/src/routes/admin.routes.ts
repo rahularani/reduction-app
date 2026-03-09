@@ -97,6 +97,25 @@ router.delete('/users/:id', authenticate, authorize('admin'), async (req: AuthRe
       return
     }
 
+    // Check if user has any food posts
+    const foodPostCount = await Food.count({ where: { donorId: user.id } })
+    if (foodPostCount > 0) {
+      res.status(400).json({ 
+        message: `Cannot delete user. They have ${foodPostCount} food post(s). Please delete their posts first.` 
+      })
+      return
+    }
+
+    // Check if user has any waste food posts
+    const WasteFood = (await import('../models/WasteFood.model.js')).default
+    const wasteFoodCount = await WasteFood.count({ where: { sellerId: user.id } })
+    if (wasteFoodCount > 0) {
+      res.status(400).json({ 
+        message: `Cannot delete user. They have ${wasteFoodCount} waste food post(s). Please delete their posts first.` 
+      })
+      return
+    }
+
     await user.destroy()
     res.json({ message: 'User deleted successfully' })
   } catch (error) {

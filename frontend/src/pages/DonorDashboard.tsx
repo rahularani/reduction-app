@@ -132,6 +132,7 @@ const DonorDashboard = () => {
         toast.error('Image size should be less than 5MB')
         return
       }
+      
       setSelectedImage(file)
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -293,10 +294,10 @@ const DonorDashboard = () => {
   return (
     <div className="min-h-screen bg-dark-950">
       <header className="bg-dark-900 border-b border-dark-800">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div>
-            <h1 className="text-2xl font-bold text-white">Donor Dashboard</h1>
-            <p className="text-gray-400 text-sm">Welcome back, {user?.name}</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-white">Donor Dashboard</h1>
+            <p className="text-gray-400 text-xs sm:text-sm">Welcome back, {user?.name}</p>
           </div>
           <div className="flex items-center gap-2">
             <NotificationDropdown />
@@ -305,26 +306,26 @@ const DonorDashboard = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8 flex gap-4">
-          <button onClick={() => setShowModal(true)} className="btn-primary flex items-center gap-2">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <button onClick={() => setShowModal(true)} className="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto">
             <Plus className="w-5 h-5" />
             Post Surplus Food
           </button>
-          <button onClick={() => navigate('/donor/marketplace')} className="btn-secondary flex items-center gap-2">
+          <button onClick={() => navigate('/donor/marketplace')} className="btn-secondary flex items-center justify-center gap-2 w-full sm:w-auto">
             <Store className="w-5 h-5" />
             Waste Food Marketplace
           </button>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {posts.map((post) => (
             <div key={post.id} className="card hover:scale-105 transition-transform">
               {post.imageUrl && (
                 <img 
                   src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001'}${post.imageUrl}`} 
                   alt={post.foodType}
-                  className="w-full h-48 object-cover rounded-xl mb-4"
+                  className="w-full h-40 sm:h-48 object-cover rounded-xl mb-4"
                   onError={(e) => {
                     console.error('Image failed to load:', post.imageUrl)
                     e.currentTarget.style.display = 'none'
@@ -332,10 +333,10 @@ const DonorDashboard = () => {
                 />
               )}
               <div className="flex items-start justify-between mb-4">
-                <div className="bg-primary-500/10 p-3 rounded-xl">
-                  <Package className="w-6 h-6 text-primary-500" />
+                <div className="bg-primary-500/10 p-2 sm:p-3 rounded-xl">
+                  <Package className="w-5 h-5 sm:w-6 sm:h-6 text-primary-500" />
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${
                   post.status === 'available' ? 'bg-green-500/10 text-green-500' :
                   post.status === 'claimed' ? 'bg-yellow-500/10 text-yellow-500' :
                   'bg-blue-500/10 text-blue-500'
@@ -343,33 +344,33 @@ const DonorDashboard = () => {
                   {post.status}
                 </span>
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">{post.foodType}</h3>
+              <h3 className="text-base sm:text-lg font-semibold text-white mb-2">{post.foodType}</h3>
               
               {post.claimedBy && (
                 <div className="mb-3 p-2 bg-dark-800 rounded-lg">
                   <p className="text-xs text-gray-500">Claimed by</p>
-                  <p className="text-sm text-primary-500 font-medium">{post.claimedBy.name}</p>
+                  <p className="text-xs sm:text-sm text-primary-500 font-medium">{post.claimedBy.name}</p>
                 </div>
               )}
 
-              <div className="space-y-2 text-sm text-gray-400 mb-4">
+              <div className="space-y-2 text-xs sm:text-sm text-gray-400 mb-4">
                 <div className="flex items-center gap-2">
-                  <Package className="w-4 h-4" />
-                  <span>{post.quantity}</span>
+                  <Package className="w-4 h-4 flex-shrink-0" />
+                  <span className="truncate">{post.quantity}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  <span>Fresh for {post.freshnessDuration}</span>
+                  <Clock className="w-4 h-4 flex-shrink-0" />
+                  <span className="truncate">Fresh for {post.freshnessDuration}</span>
                 </div>
                 {/* Hide location if delivery is completed */}
                 {post.status !== 'completed' && (
                   <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
                     <span className="flex-1 truncate">{post.pickupLocation}</span>
                     {post.latitude && post.longitude && (
                       <button
                         onClick={() => openInGoogleMaps(post.latitude!, post.longitude!)}
-                        className="text-primary-500 hover:text-primary-400"
+                        className="text-primary-500 hover:text-primary-400 flex-shrink-0"
                       >
                         <Navigation className="w-4 h-4" />
                       </button>
@@ -378,8 +379,8 @@ const DonorDashboard = () => {
                 )}
                 {post.status === 'completed' && (
                   <div className="flex items-center gap-2 text-gray-600">
-                    <MapPin className="w-4 h-4" />
-                    <span className="italic">Location hidden (delivery completed)</span>
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
+                    <span className="italic text-xs">Location hidden (delivery completed)</span>
                   </div>
                 )}
               </div>
@@ -387,7 +388,7 @@ const DonorDashboard = () => {
               {post.status === 'claimed' && (
                 <button
                   onClick={() => handleDeliverClick(post)}
-                  className="btn-primary w-full flex items-center justify-center gap-2"
+                  className="btn-primary w-full flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
                   <Truck className="w-4 h-4" />
                   Complete Delivery
@@ -397,7 +398,7 @@ const DonorDashboard = () => {
               {post.status === 'completed' && (
                 <div className="flex items-center justify-center gap-2 text-green-500 py-2">
                   <CheckCircle className="w-5 h-5" />
-                  <span className="font-medium">Delivered</span>
+                  <span className="font-medium text-sm sm:text-base">Delivered</span>
                 </div>
               )}
             </div>
@@ -516,7 +517,10 @@ const DonorDashboard = () => {
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary flex-1">
+                <button 
+                  type="submit" 
+                  className="btn-primary flex-1"
+                >
                   Post Food
                 </button>
               </div>
