@@ -4,8 +4,9 @@ services:
     runtime: node
     region: oregon
     plan: free
-    buildCommand: cd backend && npm install && npm run build
-    startCommand: cd backend && npm start
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
     envVars:
       - key: PORT
         value: 10000
@@ -14,21 +15,13 @@ services:
       - key: DB_DIALECT
         value: postgres
       - key: DB_HOST
-        fromDatabase:
-          name: foodwastedb
-          property: host
+        sync: false
       - key: DB_USER
-        fromDatabase:
-          name: foodwastedb
-          property: user
+        sync: false
       - key: DB_PASSWORD
-        fromDatabase:
-          name: foodwastedb
-          property: password
+        sync: false
       - key: DB_NAME
-        fromDatabase:
-          name: foodwastedb
-          property: database
+        sync: false
       - key: DB_PORT
         value: 5432
       - key: JWT_SECRET
@@ -38,9 +31,3 @@ services:
       - key: GOOGLE_CLIENT_SECRET
         sync: false
 
-databases:
-  - name: foodwastedb
-    databaseName: foodwastedb_iyx7
-    user: foodwastedb_iyx7_user
-    region: oregon
-    plan: free
