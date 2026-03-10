@@ -26,30 +26,110 @@
 
 ## Database Setup
 
-### Step 1: Create Free MySQL Database
+### Option 1: Railway (RECOMMENDED - Easiest) ⭐
 
-1. **Go to**: https://www.db4free.net/signup.php
+1. **Go to**: https://railway.app
 
-2. **Fill in the form**:
+2. **Sign up with GitHub**:
+   - Click "Start Free"
+   - Sign in with GitHub
+   - Authorize Railway
+
+3. **Create MySQL Database**:
+   - Click "New Project"
+   - Click "Provision MySQL"
+   - Railway will create a free MySQL database
+   - You get $5 free credit/month (enough for database)
+
+4. **Get Connection Details**:
+   - Click on the MySQL service
+   - Go to "Connect" tab
+   - Copy the connection string
+   - Extract these details:
    ```
-   Database Name: foodwastedb (or any name you want)
-   Username: your_username (remember this!)
-   Password: your_password (remember this!)
-   Email: your_email@example.com
+   Host: (from connection string)
+   Port: 3306
+   Database: railway
+   Username: root
+   Password: (from connection string)
    ```
 
-3. **Click "Signup"**
+---
 
-4. **Check your email** and click the confirmation link
+### Option 2: PlanetScale (Free Tier)
 
-5. **Save these details** (you'll need them later):
+1. **Go to**: https://planetscale.com
+
+2. **Sign up with GitHub**:
+   - Click "Sign up"
+   - Sign in with GitHub
+
+3. **Create Database**:
+   - Click "Create a database"
+   - Name: `foodwastedb`
+   - Region: Choose closest to you
+   - Click "Create database"
+
+4. **Get Connection Details**:
+   - Click on your database
+   - Go to "Connect" tab
+   - Select "Node.js"
+   - Copy the connection string
+   - Extract these details:
    ```
-   Host: db4free.net
+   Host: (from connection string)
    Port: 3306
    Database: foodwastedb
-   Username: your_username
-   Password: your_password
+   Username: (from connection string)
+   Password: (from connection string)
    ```
+
+---
+
+### Option 3: Render PostgreSQL (Free)
+
+1. **Go to**: https://render.com
+
+2. **Sign up with GitHub**
+
+3. **Create PostgreSQL Database**:
+   - Click "New +" → "PostgreSQL"
+   - Name: `foodwastedb`
+   - Region: Choose closest to you
+   - Click "Create Database"
+
+4. **Get Connection Details**:
+   - Copy the connection string
+   - Extract these details:
+   ```
+   Host: (from connection string)
+   Port: 5432
+   Database: foodwastedb
+   Username: (from connection string)
+   Password: (from connection string)
+   ```
+
+**Note**: You'll need to update backend code to use PostgreSQL instead of MySQL
+
+---
+
+### ✅ RECOMMENDED: Use Railway
+
+**Why Railway?**
+- ✅ Easiest setup (1 click)
+- ✅ Free $5 credit/month
+- ✅ MySQL support (no code changes)
+- ✅ Good performance
+- ✅ Same account as backend deployment
+
+**Save these details** (you'll need them later):
+```
+Host: (from Railway)
+Port: 3306
+Database: railway
+Username: root
+Password: (from Railway)
+```
 
 ---
 
@@ -94,11 +174,11 @@ Click "Add Environment Variable" for each of these:
 PORT=5001
 NODE_ENV=production
 
-# Database Configuration (from db4free.net)
-DB_HOST=db4free.net
-DB_USER=your_username_from_db4free
-DB_PASSWORD=your_password_from_db4free
-DB_NAME=foodwastedb
+# Database Configuration (from Railway)
+DB_HOST=your_railway_host
+DB_USER=root
+DB_PASSWORD=your_railway_password
+DB_NAME=railway
 DB_PORT=3306
 
 # JWT Secret (generate a random string)
@@ -111,6 +191,13 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 # Frontend URL (add after deploying frontend - leave empty for now)
 FRONTEND_URL=
 ```
+
+**How to get Railway credentials:**
+1. Go to Railway dashboard
+2. Click on your MySQL service
+3. Go to "Connect" tab
+4. Copy the connection details
+5. Extract Host, Username, Password from the connection string
 
 ### Step 4: Deploy Backend
 
@@ -319,9 +406,23 @@ Both Render and Vercel will auto-deploy!
 ```
 Frontend: https://your-app-name.vercel.app
 Backend: https://food-waste-backend.onrender.com
-Database: db4free.net:3306
+Database: Railway MySQL
 Repository: https://github.com/rahularani/reduction-app
 ```
+
+### Database Options
+
+**Recommended**: Railway
+- Sign up: https://railway.app
+- Free $5 credit/month
+- MySQL support
+- Easy setup
+
+**Alternative**: PlanetScale
+- Sign up: https://planetscale.com
+- Free tier
+- MySQL support
+- Good performance
 
 ### Admin Credentials
 
@@ -348,6 +449,13 @@ Wait 2-3 minutes and your changes will be live!
 
 ## 📊 Free Tier Limits
 
+### Railway Free Tier:
+- ✅ $5 free credit/month
+- ✅ MySQL database included
+- ✅ Good performance
+- ✅ Automatic SSL
+- ✅ Easy to use
+
 ### Render Free Tier:
 - ✅ 750 hours/month (enough for 1 app)
 - ⚠️ Sleeps after 15 min inactivity
@@ -362,11 +470,11 @@ Wait 2-3 minutes and your changes will be live!
 - ✅ Automatic SSL
 - ✅ Global CDN
 
-### db4free.net:
-- ✅ 200 MB storage
-- ⚠️ Slow performance
-- ⚠️ Not for production
-- ✅ MySQL 8.0
+### PlanetScale Free Tier:
+- ✅ Free MySQL database
+- ✅ Good performance
+- ✅ 5 GB storage
+- ✅ Automatic SSL
 
 ---
 
