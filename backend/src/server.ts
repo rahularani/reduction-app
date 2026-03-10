@@ -5,17 +5,25 @@ import path from 'path'
 import fs from 'fs'
 import { createServer } from 'http'
 
+console.log('=== BACKEND SERVER STARTING ===')
+console.log('Timestamp:', new Date().toISOString())
+console.log('Node version:', process.version)
+console.log('CWD:', process.cwd())
+
 // Load environment variables
 dotenv.config()
 
 const PORT = parseInt(process.env.PORT || '5000')
 
-console.log('Starting server on port', PORT)
+console.log('Environment loaded')
+console.log('PORT:', PORT)
+console.log('NODE_ENV:', process.env.NODE_ENV)
+console.log('DB_DIALECT:', process.env.DB_DIALECT)
 
 const app = express()
 const httpServer = createServer(app)
 
-// Middleware
+console.log('Express app created')
 app.use(cors({
   origin: [
     'http://localhost:5173',
@@ -54,6 +62,7 @@ app.get('/api/health', (_req, res) => {
 })
 
 // Import routes
+console.log('Importing routes...')
 import authRoutes from './routes/auth.routes.js'
 import foodRoutes from './routes/food.routes.js'
 import adminRoutes from './routes/admin.routes.js'
@@ -63,9 +72,12 @@ import { connectDB } from './config/database.js'
 import { startExpirationChecker } from './utils/expirationChecker.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.middleware.js'
 
+console.log('Routes imported successfully')
+
 // Initialize Socket.IO
 try {
   initializeSocket(httpServer)
+  console.log('Socket.IO initialized')
 } catch (error) {
   console.error('Socket.IO init failed:', error)
 }
@@ -79,6 +91,8 @@ app.use('/api/waste-food', wasteFoodRoutes)
 // Error handling
 app.use(notFoundHandler)
 app.use(errorHandler)
+
+console.log('Routes configured')
 
 // Start server
 httpServer.listen(PORT, '0.0.0.0', () => {
