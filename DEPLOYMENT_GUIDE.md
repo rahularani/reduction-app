@@ -47,11 +47,11 @@
    - Go to "Connections" tab
    - Copy these details:
    ```
-   Host: dpg-xxxxx.render.com
+   Host: dpg-d6np1tea2pns73fm8st0-a
    Port: 5432
-   Database: foodwastedb
-   Username: foodwastedb_user
-   Password: your_password_here
+   Database: foodwastedb_iyx7
+   Username: foodwastedb_iyx7_user
+   Password: GiHLia3vp5yMfOFBMuwK8a1ugHg6Ltr3
    ```
    - **SAVE THESE DETAILS** - you'll need them for backend!
 
@@ -93,10 +93,10 @@ NODE_ENV=production
 
 # Database Configuration (from Render PostgreSQL)
 DB_DIALECT=postgres
-DB_HOST=dpg-xxxxx.render.com
-DB_USER=foodwastedb_user
-DB_PASSWORD=your_password_here
-DB_NAME=foodwastedb
+DB_HOST=dpg-d6np1tea2pns73fm8st0-a
+DB_USER=foodwastedb_iyx7_user
+DB_PASSWORD=GiHLia3vp5yMfOFBMuwK8a1ugHg6Ltr3
+DB_NAME=foodwastedb_iyx7
 DB_PORT=5432
 
 # JWT Secret (generate a random string)
