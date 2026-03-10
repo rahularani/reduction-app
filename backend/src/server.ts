@@ -19,8 +19,15 @@ const app = express()
 const httpServer = createServer(app)
 const PORT = parseInt(process.env.PORT || '5000')
 
+logger.info(`Starting server on port ${PORT}`)
+
 // Initialize Socket.IO
-initializeSocket(httpServer)
+try {
+  initializeSocket(httpServer)
+  logger.info('Socket.IO initialized')
+} catch (error) {
+  logger.error('Failed to initialize Socket.IO:', error)
+}
 
 // Middleware
 app.use(cors({
@@ -37,17 +44,21 @@ app.use(express.json())
 const uploadsPath = path.resolve(process.cwd(), 'uploads')
 const foodImagesPath = path.join(uploadsPath, 'food-images')
 
-if (!fs.existsSync(uploadsPath)) {
-  fs.mkdirSync(uploadsPath, { recursive: true })
-  logger.info('Created uploads directory')
-}
+try {
+  if (!fs.existsSync(uploadsPath)) {
+    fs.mkdirSync(uploadsPath, { recursive: true })
+    logger.info('Created uploads directory')
+  }
 
-if (!fs.existsSync(foodImagesPath)) {
-  fs.mkdirSync(foodImagesPath, { recursive: true })
-  logger.info('Created food-images directory')
-}
+  if (!fs.existsSync(foodImagesPath)) {
+    fs.mkdirSync(foodImagesPath, { recursive: true })
+    logger.info('Created food-images directory')
+  }
 
-logger.info('Serving uploads from:', uploadsPath)
+  logger.info('Serving uploads from:', uploadsPath)
+} catch (error) {
+  logger.error('Failed to create upload directories:', error)
+}
 
 app.use('/uploads', (_req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin')
@@ -70,11 +81,12 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.middlew
 app.use(notFoundHandler)
 app.use(errorHandler)
 
-// Start server immediately (don't wait for DB)
-httpServer.listen(PORT, '0.0.0.0', () => {
-  logger.info(`Server listening on port ${PORT}`)
-  logger.info('Socket.IO initialized')
-})
+// Start server
+const startServer = () => {
+  httpServer.listen(PORT, '0.0.0.0', () => {
+    logger.info(`✅ Server listening on port ${PORT}`)
+  })
+}
 
 // Handle server errors
 httpServer.on('error', (error: any) => {
@@ -82,25 +94,28 @@ httpServer.on('error', (error: any) => {
   if (error.code === 'EADDRINUSE') {
     logger.error(`Port ${PORT} is already in use`)
   }
-  process.exit(1)
 })
 
-// Connect to DB in background
-connectDB().then(() => {
-  logger.info('Database connected successfully')
-  startExpirationChecker()
-}).catch((error) => {
-  logger.error('Database connection failed:', error)
-  logger.warn('Server running without database - API calls will fail')
-})
+// Start the server
+startServer()
+
+// Connect to DB in background (don't block server startup)
+setTimeout(() => {
+  connectDB().then(() => {
+    logger.info('Database connected successfully')
+    startExpirationChecker()
+  }).catch((error) => {
+    logger.error('Database connection failed:', error)
+    logger.warn('Server running without database')
+  })
+}, 100)
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
   logger.error('Uncaught exception:', error)
-  process.exit(1)
 })
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  logger.error('Unhandled rejection at:', promise, 'reason:', reason)
+process.on('unhandledRejection', (reason) => {
+  logger.error('Unhandled rejection:', reason)
 })
