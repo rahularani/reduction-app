@@ -1,29 +1,22 @@
 import express from 'express'
 import cors from 'cors'
+import { createServer } from 'http'
 import dotenv from 'dotenv'
 import path from 'path'
 import fs from 'fs'
-import { createServer } from 'http'
 
-console.log('=== BACKEND SERVER STARTING ===')
-console.log('Timestamp:', new Date().toISOString())
-console.log('Node version:', process.version)
-console.log('CWD:', process.cwd())
-
-// Load environment variables
 dotenv.config()
 
 const PORT = parseInt(process.env.PORT || '5000')
 
-console.log('Environment loaded')
+console.log('=== SERVER STARTING ===')
 console.log('PORT:', PORT)
 console.log('NODE_ENV:', process.env.NODE_ENV)
-console.log('DB_DIALECT:', process.env.DB_DIALECT)
 
 const app = express()
 const httpServer = createServer(app)
 
-console.log('Express app created')
+// Middleware
 app.use(cors({
   origin: [
     'http://localhost:5173',
@@ -56,13 +49,14 @@ app.use('/uploads', (_req, res, next) => {
   next()
 }, express.static(uploadsPath))
 
-// Health check
+// Health check endpoint
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', message: 'Server is running' })
 })
 
+console.log('Basic setup complete, importing routes...')
+
 // Import routes
-console.log('Importing routes...')
 import authRoutes from './routes/auth.routes.js'
 import foodRoutes from './routes/food.routes.js'
 import adminRoutes from './routes/admin.routes.js'
@@ -72,7 +66,7 @@ import { connectDB } from './config/database.js'
 import { startExpirationChecker } from './utils/expirationChecker.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.middleware.js'
 
-console.log('Routes imported successfully')
+console.log('Routes imported')
 
 // Initialize Socket.IO
 try {
@@ -105,16 +99,15 @@ httpServer.on('error', (error: any) => {
 })
 
 // Connect to database in background
-setTimeout(() => {
-  connectDB().then(() => {
-    console.log('Database connected')
-    startExpirationChecker()
-  }).catch((error) => {
-    console.error('Database connection failed:', error)
-  })
-}, 100)
+console.log('Connecting to database...')
+connectDB().then(() => {
+  console.log('Database connected')
+  startExpirationChecker()
+}).catch((error) => {
+  console.error('Database connection failed:', error)
+})
 
-// Handle process errors
+// Prevent process from exiting
 process.on('uncaughtException', (error) => {
   console.error('Uncaught exception:', error)
 })
@@ -122,3 +115,5 @@ process.on('uncaughtException', (error) => {
 process.on('unhandledRejection', (reason) => {
   console.error('Unhandled rejection:', reason)
 })
+
+console.log('Server setup complete')
