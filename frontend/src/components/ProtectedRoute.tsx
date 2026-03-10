@@ -3,7 +3,7 @@ import { useAuthStore } from '../store/authStore'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
-  allowedRole?: 'donor' | 'volunteer' | 'admin'
+  allowedRole?: 'donor' | 'volunteer' | 'admin' | 'farmer'
 }
 
 const ProtectedRoute = ({ children, allowedRole }: ProtectedRouteProps) => {
@@ -20,6 +20,8 @@ const ProtectedRoute = ({ children, allowedRole }: ProtectedRouteProps) => {
       return <Navigate to="/donor/dashboard" replace />
     } else if (user.role === 'volunteer') {
       return <Navigate to="/volunteer/dashboard" replace />
+    } else if (user.role === 'farmer') {
+      return <Navigate to="/farmer/dashboard" replace />
     } else {
       return <Navigate to="/admin/dashboard" replace />
     }

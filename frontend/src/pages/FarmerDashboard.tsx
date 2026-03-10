@@ -42,7 +42,7 @@ const FarmerDashboard = () => {
       toast.success(`New waste food available: ${post.foodType}`)
     })
 
-    socket.on('wasteFoodReserved', ({ wasteFoodId, status }: any) => {
+    socket.on('wasteFoodReserved', ({ wasteFoodId }: any) => {
       setAvailablePosts((prev) =>
         prev.filter((post) => post.id !== wasteFoodId)
       )

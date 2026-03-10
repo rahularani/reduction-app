@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Plus, Package, MapPin, Navigation, DollarSign, CheckCircle, Image as ImageIcon } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { useAuthStore } from '../store/authStore'
 import api from '../utils/api'
 import { getSocket } from '../utils/socket'
 import ProfileDropdown from '../components/ProfileDropdown'
@@ -26,7 +25,6 @@ interface WasteFoodPost {
 }
 
 const WasteFoodMarketplace = () => {
-  const { user } = useAuthStore()
   const [showModal, setShowModal] = useState(false)
   const [posts, setPosts] = useState<WasteFoodPost[]>([])
   const [imagePreview, setImagePreview] = useState<string | null>(null)
