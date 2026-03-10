@@ -4,14 +4,18 @@ import { logger } from '../utils/logger.js'
 
 dotenv.config()
 
+// Determine database dialect (mysql or postgres)
+const dbDialect = (process.env.DB_DIALECT || 'mysql') as 'mysql' | 'postgres'
+const dbPort = parseInt(process.env.DB_PORT || (dbDialect === 'postgres' ? '5432' : '3306'))
+
 const sequelize = new Sequelize(
   process.env.DB_NAME || 'food_waste_app',
   process.env.DB_USER || 'root',
   process.env.DB_PASSWORD || '',
   {
     host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '3306'),
-    dialect: 'mysql',
+    port: dbPort,
+    dialect: dbDialect,
     logging: false,
     pool: {
       max: 5,
@@ -25,7 +29,8 @@ const sequelize = new Sequelize(
 export const connectDB = async () => {
   try {
     await sequelize.authenticate()
-    logger.info('MySQL Database connected successfully')
+    const dbType = dbDialect === 'postgres' ? 'PostgreSQL' : 'MySQL'
+    logger.info(`${dbType} Database connected successfully`)
     
     // Sync all models
     await sequelize.sync({ alter: true })
