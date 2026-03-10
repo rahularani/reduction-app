@@ -4,35 +4,21 @@ import dotenv from 'dotenv'
 import path from 'path'
 import fs from 'fs'
 import { createServer } from 'http'
-import { connectDB } from './config/database.js'
-import authRoutes from './routes/auth.routes.js'
-import foodRoutes from './routes/food.routes.js'
-import adminRoutes from './routes/admin.routes.js'
-import wasteFoodRoutes from './routes/wastefood.routes.js'
-import { initializeSocket } from './socket/socket.js'
-import { startExpirationChecker } from './utils/expirationChecker.js'
-import { logger } from './utils/logger.js'
 
+// Load environment variables
 dotenv.config()
+
+const PORT = parseInt(process.env.PORT || '5000')
+
+console.log('Starting server on port', PORT)
 
 const app = express()
 const httpServer = createServer(app)
-const PORT = parseInt(process.env.PORT || '5000')
-
-logger.info(`Starting server on port ${PORT}`)
-
-// Initialize Socket.IO
-try {
-  initializeSocket(httpServer)
-  logger.info('Socket.IO initialized')
-} catch (error) {
-  logger.error('Failed to initialize Socket.IO:', error)
-}
 
 // Middleware
 app.use(cors({
   origin: [
-    'http://localhost:5173', 
+    'http://localhost:5173',
     'http://localhost:5174',
     process.env.FRONTEND_URL || 'http://localhost:5173'
   ],
@@ -47,75 +33,78 @@ const foodImagesPath = path.join(uploadsPath, 'food-images')
 try {
   if (!fs.existsSync(uploadsPath)) {
     fs.mkdirSync(uploadsPath, { recursive: true })
-    logger.info('Created uploads directory')
   }
-
   if (!fs.existsSync(foodImagesPath)) {
     fs.mkdirSync(foodImagesPath, { recursive: true })
-    logger.info('Created food-images directory')
   }
-
-  logger.info('Serving uploads from:', uploadsPath)
 } catch (error) {
-  logger.error('Failed to create upload directories:', error)
+  console.error('Failed to create directories:', error)
 }
 
+// Serve uploads
 app.use('/uploads', (_req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin')
   res.setHeader('Access-Control-Allow-Origin', '*')
   next()
 }, express.static(uploadsPath))
 
-// Routes
+// Health check
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok', message: 'Server is running' })
+})
+
+// Import routes
+import authRoutes from './routes/auth.routes.js'
+import foodRoutes from './routes/food.routes.js'
+import adminRoutes from './routes/admin.routes.js'
+import wasteFoodRoutes from './routes/wastefood.routes.js'
+import { initializeSocket } from './socket/socket.js'
+import { connectDB } from './config/database.js'
+import { startExpirationChecker } from './utils/expirationChecker.js'
+import { errorHandler, notFoundHandler } from './middleware/errorHandler.middleware.js'
+
+// Initialize Socket.IO
+try {
+  initializeSocket(httpServer)
+} catch (error) {
+  console.error('Socket.IO init failed:', error)
+}
+
+// Add routes
 app.use('/api/auth', authRoutes)
 app.use('/api/food', foodRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/waste-food', wasteFoodRoutes)
 
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', message: 'Server is running' })
-})
-
-// Error handling middleware (must be last)
-import { errorHandler, notFoundHandler } from './middleware/errorHandler.middleware.js'
+// Error handling
 app.use(notFoundHandler)
 app.use(errorHandler)
 
 // Start server
-const startServer = () => {
-  httpServer.listen(PORT, '0.0.0.0', () => {
-    logger.info(`✅ Server listening on port ${PORT}`)
-  })
-}
-
-// Handle server errors
-httpServer.on('error', (error: any) => {
-  logger.error('Server error:', error)
-  if (error.code === 'EADDRINUSE') {
-    logger.error(`Port ${PORT} is already in use`)
-  }
+httpServer.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Server listening on port ${PORT}`)
 })
 
-// Start the server
-startServer()
+// Handle errors
+httpServer.on('error', (error: any) => {
+  console.error('Server error:', error)
+})
 
-// Connect to DB in background (don't block server startup)
+// Connect to database in background
 setTimeout(() => {
   connectDB().then(() => {
-    logger.info('Database connected successfully')
+    console.log('Database connected')
     startExpirationChecker()
   }).catch((error) => {
-    logger.error('Database connection failed:', error)
-    logger.warn('Server running without database')
+    console.error('Database connection failed:', error)
   })
 }, 100)
 
-// Handle uncaught exceptions
+// Handle process errors
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception:', error)
+  console.error('Uncaught exception:', error)
 })
 
-// Handle unhandled promise rejections
 process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled rejection:', reason)
+  console.error('Unhandled rejection:', reason)
 })
