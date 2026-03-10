@@ -37,7 +37,9 @@ export const connectDB = async () => {
     logger.info('Database synchronized')
   } catch (error) {
     logger.error('Unable to connect to database:', error)
-    process.exit(1)
+    logger.warn('Server will continue running without database connection')
+    // Don't exit - let server continue running
+    // Database will be retried on next request
   }
 }
 
