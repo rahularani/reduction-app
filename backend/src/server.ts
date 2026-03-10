@@ -16,7 +16,7 @@ dotenv.config()
 
 const app = express()
 const httpServer = createServer(app)
-const PORT = process.env.PORT || 5000
+const PORT = parseInt(process.env.PORT || '5000')
 
 // Initialize Socket.IO
 initializeSocket(httpServer)
@@ -57,13 +57,17 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.middlew
 app.use(notFoundHandler)
 app.use(errorHandler)
 
-// Connect to DB and start server
+// Start server immediately (don't wait for DB)
+httpServer.listen(PORT, '0.0.0.0', () => {
+  logger.info(`Server listening on port ${PORT}`)
+  logger.info('Socket.IO initialized')
+})
+
+// Connect to DB in background
 connectDB().then(() => {
-  httpServer.listen(PORT, () => {
-    logger.info(`Server running on port ${PORT}`)
-    logger.info('Socket.IO initialized')
-    
-    // Start the food expiration checker
-    startExpirationChecker()
-  })
+  logger.info('Database connected successfully')
+  startExpirationChecker()
+}).catch((error) => {
+  logger.error('Database connection failed:', error)
+  logger.warn('Server running without database - API calls will fail')
 })
