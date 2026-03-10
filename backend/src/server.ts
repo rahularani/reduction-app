@@ -50,6 +50,22 @@ app.use('/uploads', (_req, res, next) => {
   next()
 }, express.static(uploadsPath))
 
+// API root endpoint
+app.get('/api', (_req, res) => {
+  res.json({ 
+    status: 'ok', 
+    message: 'Food Waste Reduction API',
+    version: '1.0.0',
+    endpoints: {
+      auth: '/api/auth',
+      food: '/api/food',
+      admin: '/api/admin',
+      wasteFoodMarketplace: '/api/waste-food',
+      health: '/api/health'
+    }
+  })
+})
+
 // Health check endpoint
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', message: 'Server is running' })
