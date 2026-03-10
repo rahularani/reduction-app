@@ -17,7 +17,7 @@
 - ✅ GitHub account (already done)
 - ✅ Render account - https://render.com
 - ✅ Vercel account - https://vercel.com
-- ✅ Free MySQL database - https://www.db4free.net
+- ✅ Database account (Railway, PlanetScale, or Render PostgreSQL)
 
 ### Repository:
 - ✅ Code pushed to: https://github.com/rahularani/reduction-app
@@ -26,67 +26,19 @@
 
 ## Database Setup
 
+### 🎯 Quick Decision Guide
+
+| Option | Setup Time | Code Changes | Performance | Cost |
+|--------|-----------|--------------|-------------|------|
+| **Railway** ⭐ | 2 min | None | Good | Free ($5/mo) |
+| **PlanetScale** | 3 min | None | Good | Free |
+| **Render PostgreSQL** | 2 min | Yes ⚠️ | Good | Free |
+
+**RECOMMENDATION**: Use **Railway** (easiest, no code changes, MySQL support)
+
+---
+
 ### Option 1: Railway (RECOMMENDED - Easiest) ⭐
-
-1. **Go to**: https://railway.app
-
-2. **Sign up with GitHub**:
-   - Click "Start Free"
-   - Sign in with GitHub
-   - Authorize Railway
-
-3. **Create MySQL Database**:
-   - Click "New Project"
-   - Click "Provision MySQL"
-   - Railway will create a free MySQL database
-   - You get $5 free credit/month (enough for database)
-
-4. **Get Connection Details**:
-   - Click on the MySQL service
-   - Go to "Connect" tab
-   - Copy the connection string
-   - Extract these details:
-   ```
-   Host: (from connection string)
-   Port: 3306
-   Database: railway
-   Username: root
-   Password: (from connection string)
-   ```
-
----
-
-### Option 2: PlanetScale (Free Tier)
-
-1. **Go to**: https://planetscale.com
-
-2. **Sign up with GitHub**:
-   - Click "Sign up"
-   - Sign in with GitHub
-
-3. **Create Database**:
-   - Click "Create a database"
-   - Name: `foodwastedb`
-   - Region: Choose closest to you
-   - Click "Create database"
-
-4. **Get Connection Details**:
-   - Click on your database
-   - Go to "Connect" tab
-   - Select "Node.js"
-   - Copy the connection string
-   - Extract these details:
-   ```
-   Host: (from connection string)
-   Port: 3306
-   Database: foodwastedb
-   Username: (from connection string)
-   Password: (from connection string)
-   ```
-
----
-
-### Option 3: Render PostgreSQL (Free)
 
 1. **Go to**: https://render.com
 
@@ -102,14 +54,40 @@
    - Copy the connection string
    - Extract these details:
    ```
-   Host: (from connection string)
+   Host: dpg-d6np1tea2pns73fm8st0-a
    Port: 5432
    Database: foodwastedb
-   Username: (from connection string)
-   Password: (from connection string)
+   Username: foodwastedb_iyx7_user
+   Password: GiHLia3vp5yMfOFBMuwK8a1ugHg6Ltr3
    ```
 
-**Note**: You'll need to update backend code to use PostgreSQL instead of MySQL
+**⚠️ IMPORTANT - Code Changes Required**:
+
+If you choose Render PostgreSQL, you MUST update backend code:
+
+1. **Update `backend/src/config/database.ts`**:
+   ```typescript
+   // Change from:
+   dialect: 'mysql',
+   
+   // To:
+   dialect: 'postgres',
+   ```
+
+2. **Install PostgreSQL driver**:
+   ```bash
+   npm install pg
+   ```
+
+3. **Update connection string format** in environment variables
+
+4. **Test locally** before deploying
+
+5. **Commit and push** changes to GitHub
+
+6. **Render will auto-deploy** the updated code
+
+**⚠️ NOT RECOMMENDED** for quick deployment. Use Railway or PlanetScale instead (MySQL support, no code changes needed)
 
 ---
 
@@ -122,14 +100,6 @@
 - ✅ Good performance
 - ✅ Same account as backend deployment
 
-**Save these details** (you'll need them later):
-```
-Host: (from Railway)
-Port: 3306
-Database: railway
-Username: root
-Password: (from Railway)
-```
 
 ---
 
