@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import path from 'path'
+import fs from 'fs'
 import { createServer } from 'http'
 import { connectDB } from './config/database.js'
 import authRoutes from './routes/auth.routes.js'
@@ -32,8 +33,20 @@ app.use(cors({
 }))
 app.use(express.json())
 
-// Serve uploaded images with proper headers
+// Ensure uploads directory exists
 const uploadsPath = path.resolve(process.cwd(), 'uploads')
+const foodImagesPath = path.join(uploadsPath, 'food-images')
+
+if (!fs.existsSync(uploadsPath)) {
+  fs.mkdirSync(uploadsPath, { recursive: true })
+  logger.info('Created uploads directory')
+}
+
+if (!fs.existsSync(foodImagesPath)) {
+  fs.mkdirSync(foodImagesPath, { recursive: true })
+  logger.info('Created food-images directory')
+}
+
 logger.info('Serving uploads from:', uploadsPath)
 
 app.use('/uploads', (_req, res, next) => {
