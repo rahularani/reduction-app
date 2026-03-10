@@ -63,6 +63,15 @@ httpServer.listen(PORT, '0.0.0.0', () => {
   logger.info('Socket.IO initialized')
 })
 
+// Handle server errors
+httpServer.on('error', (error: any) => {
+  logger.error('Server error:', error)
+  if (error.code === 'EADDRINUSE') {
+    logger.error(`Port ${PORT} is already in use`)
+  }
+  process.exit(1)
+})
+
 // Connect to DB in background
 connectDB().then(() => {
   logger.info('Database connected successfully')
@@ -70,4 +79,15 @@ connectDB().then(() => {
 }).catch((error) => {
   logger.error('Database connection failed:', error)
   logger.warn('Server running without database - API calls will fail')
+})
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught exception:', error)
+  process.exit(1)
+})
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled rejection at:', promise, 'reason:', reason)
 })

@@ -87,8 +87,8 @@
 Click "Add Environment Variable" for each of these:
 
 ```bash
-# Server Configuration
-PORT=5001
+# Server Configuration (IMPORTANT: Render needs PORT set)
+PORT=10000
 NODE_ENV=production
 
 # Database Configuration (from Render PostgreSQL)
@@ -283,6 +283,13 @@ Wait 2-3 minutes and your changes will be live!
 ## 🚨 Troubleshooting
 
 ### Backend Issues
+
+**Problem**: "No open ports detected" error during deployment
+- **Solution**: Make sure `PORT` environment variable is set to `10000` in Render
+- **Solution**: Verify the build command is: `npm install && npm run build`
+- **Solution**: Verify the start command is: `npm start`
+- **Solution**: Check Render logs to see if there are any startup errors
+- **Solution**: The server must bind to `0.0.0.0` (which it does by default)
 
 **Problem**: Backend shows "Application failed to respond"
 - **Solution**: Check Render logs for errors
